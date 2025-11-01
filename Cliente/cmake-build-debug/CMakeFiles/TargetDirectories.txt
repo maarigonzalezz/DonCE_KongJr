@@ -1,0 +1,3 @@
+C:/Users/gonza/Desktop/tarea4 paradigmas/DonCE_KongJr/Cliente/cmake-build-debug/CMakeFiles/Cliente.dir
+C:/Users/gonza/Desktop/tarea4 paradigmas/DonCE_KongJr/Cliente/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/gonza/Desktop/tarea4 paradigmas/DonCE_KongJr/Cliente/cmake-build-debug/CMakeFiles/rebuild_cache.dir
