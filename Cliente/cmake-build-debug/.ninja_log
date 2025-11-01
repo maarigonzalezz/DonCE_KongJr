@@ -1,0 +1,7 @@
+# ninja log v6
+41	147	7837353772864796	CMakeFiles/Cliente.dir/cliente.c.obj	42055b0de0fdab28
+28	488	7837360512119410	build.ninja	2c54aeceba5bb52d
+45	133	7837353772894759	CMakeFiles/Cliente.dir/constants.c.obj	e05e1f97b0f0aa29
+25	107	7837354402223919	Cliente.exe	39cbbffeafd4c1f
+50	874	7837360990337869	CMakeFiles/Cliente.dir/cliente.c.obj	42055b0de0fdab28
+876	1035	7837360998590843	Cliente.exe	fd514e89ab09fe1c
