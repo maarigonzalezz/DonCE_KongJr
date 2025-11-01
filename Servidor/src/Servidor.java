@@ -33,7 +33,7 @@ public class Servidor {
                 String line;
                 while ((line = in.readLine()) != null) {
                     System.out.println("[" + who + "] " + line);
-                    out.write("ECHO " + line + "\n");
+                    out.write("Se recibio: " + line + "\n");
                     out.flush();
                 }
             } catch (IOException e) {

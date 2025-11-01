@@ -7,9 +7,10 @@
 #include "constants.h"
 #include "cliente.h"
 
+// manejar bien la librería de Winsock
 static int winsock_startup(void) {
     WSADATA wsa;
-    int r = WSAStartup(MAKEWORD(2,2), &wsa);
+    int r = WSAStartup(MAKEWORD(2,2), &wsa); // pide la versión de de winsock
     if (r != 0) {
         fprintf(stderr, "WSAStartup failed: %d\n", r);
         return -1;
@@ -21,6 +22,7 @@ static void winsock_cleanup(void) {
     WSACleanup();
 }
 
+// enviar lineas de texto
 static int send_line(SOCKET s, const char *str) {
     size_t n = strlen(str);
     if (send(s, str, (int)n, 0) != (int)n) return -1;
@@ -52,7 +54,7 @@ static int recv_line(SOCKET s, char *buf, size_t cap) {
 }
 
 int main(void) {
-    if (winsock_startup() != 0) return 1;
+    if (winsock_startup() != 0) return 1; // Iniciaaliza Winsock
 
     // Resolver host/puerto
     struct addrinfo hints, *res = NULL;
