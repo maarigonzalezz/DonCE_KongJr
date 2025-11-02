@@ -68,14 +68,14 @@ void juego_menu_network(Juego* j, SOCKET sock){
                 float mx = (float)ev.button.x, my = (float)ev.button.y;
                 if (hit(btn1, mx, my)){
                     // Clic en 1 -> enviar "jugador"
-                    if (net_send_line(sock, "jugador") != 0) {
+                    if (net_send_line(sock, "CLIENTE QUIERE: jugador") != 0) {
                         fprintf(stderr, "Error enviando 'jugador'\n");
                     } else {
                         printf(">> jugador\n");
                     }
                 } else if (hit(btn2, mx, my)){
                     // Clic en 2 -> enviar "espectador"
-                    if (net_send_line(sock, "espectador") != 0) {
+                    if (net_send_line(sock, "CLIENTE QUIERE: espectador") != 0) {
                         fprintf(stderr, "Error enviando 'espectador'\n");
                     } else {
                         printf(">> espectador\n");
