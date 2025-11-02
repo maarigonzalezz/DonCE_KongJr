@@ -52,6 +52,14 @@ build cmake_object_order_depends_target_Cliente: phony || CMakeFiles/Cliente.dir
 build CMakeFiles/Cliente.dir/cliente.c.obj: C_COMPILER__Cliente_unscanned_Debug C$:/Users/gonza/Desktop/tarea4$ paradigmas/DonCE_KongJr/Cliente/cliente.c || cmake_object_order_depends_target_Cliente
   DEP_FILE = CMakeFiles\Cliente.dir\cliente.c.obj.d
   FLAGS = -g -std=gnu11 -fdiagnostics-color=always
+  INCLUDES = -I"C:/Users/gonza/Desktop/tarea4 paradigmas/DonCE_KongJr/Cliente/SDL3/x86_64-w64-mingw32/include"
+  OBJECT_DIR = CMakeFiles\Cliente.dir
+  OBJECT_FILE_DIR = CMakeFiles\Cliente.dir
+
+build CMakeFiles/Cliente.dir/juego.c.obj: C_COMPILER__Cliente_unscanned_Debug C$:/Users/gonza/Desktop/tarea4$ paradigmas/DonCE_KongJr/Cliente/juego.c || cmake_object_order_depends_target_Cliente
+  DEP_FILE = CMakeFiles\Cliente.dir\juego.c.obj.d
+  FLAGS = -g -std=gnu11 -fdiagnostics-color=always
+  INCLUDES = -I"C:/Users/gonza/Desktop/tarea4 paradigmas/DonCE_KongJr/Cliente/SDL3/x86_64-w64-mingw32/include"
   OBJECT_DIR = CMakeFiles\Cliente.dir
   OBJECT_FILE_DIR = CMakeFiles\Cliente.dir
 
@@ -63,11 +71,12 @@ build CMakeFiles/Cliente.dir/cliente.c.obj: C_COMPILER__Cliente_unscanned_Debug 
 #############################################
 # Link the executable Cliente.exe
 
-build Cliente.exe: C_EXECUTABLE_LINKER__Cliente_Debug CMakeFiles/Cliente.dir/cliente.c.obj
+build Cliente.exe: C_EXECUTABLE_LINKER__Cliente_Debug CMakeFiles/Cliente.dir/cliente.c.obj CMakeFiles/Cliente.dir/juego.c.obj
   FLAGS = -g
-  LINK_LIBRARIES = -lws2_32  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
+  LINK_LIBRARIES = -lSDL3  -lws2_32  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
+  LINK_PATH = -LC:/Users/gonza/Desktop/TAREA4~1/DONCE_~1/Cliente/SDL3/X86_64~1/lib
   OBJECT_DIR = CMakeFiles\Cliente.dir
-  POST_BUILD = cd .
+  POST_BUILD = C:\WINDOWS\system32\cmd.exe /C "cd /D "C:\Users\gonza\Desktop\tarea4 paradigmas\DonCE_KongJr\Cliente\cmake-build-debug" && "C:\Program Files\JetBrains\CLion 2024.1.4\bin\cmake\win\x64\bin\cmake.exe" -E copy_if_different "C:/Users/gonza/Desktop/tarea4 paradigmas/DonCE_KongJr/Cliente/SDL3/x86_64-w64-mingw32/bin/SDL3.dll" "C:/Users/gonza/Desktop/tarea4 paradigmas/DonCE_KongJr/Cliente/cmake-build-debug""
   PRE_LINK = cd .
   TARGET_FILE = Cliente.exe
   TARGET_IMPLIB = libCliente.dll.a
