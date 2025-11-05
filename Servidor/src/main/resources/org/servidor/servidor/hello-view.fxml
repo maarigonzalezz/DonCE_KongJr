@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Button?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="650.0" prefWidth="1019.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.servidor.servidor.AppController">
+    <children>
+        <ToggleButton fx:id="server_toggle" layoutX="44.0" layoutY="39.0" mnemonicParsing="false" onAction="#server_toggle" text="Servidor" />
+
+        <Label fx:id="confirmacion" layoutX="44.0" layoutY="77.0" prefHeight="31.0" prefWidth="92.0" />
+    </children>
+</Pane>
