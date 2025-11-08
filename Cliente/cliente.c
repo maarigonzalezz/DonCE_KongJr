@@ -116,7 +116,7 @@ int main(void){
     juego_menu_network(&juego, sock);
 
     // 1) Decirle chao al server
-    net_send_line(sock, "QUIT");
+    net_send_line(sock, "{\"type_message\":\"salir\"}");
     // 2) Half-close de salida: manda FIN para que el servidor vea EOF al leer
     shutdown(sock, SD_SEND);
     // 3) Deja corriendo el hilo lector hasta que reciba 0 (EOF) o un último mensaje.

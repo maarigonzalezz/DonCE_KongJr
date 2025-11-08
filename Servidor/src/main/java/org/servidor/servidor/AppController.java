@@ -66,6 +66,6 @@ public class AppController {
         }
 
         confirmacion.setText("DETENIDO");
-        System.out.println("Servidor detenido.");
+        System.out.println("Servidor detenido1.");
     }
 }
