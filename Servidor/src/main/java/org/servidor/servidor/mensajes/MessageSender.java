@@ -3,29 +3,28 @@ package org.servidor.servidor.mensajes;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.servidor.servidor.socket.ClienteActivo;
 import org.servidor.servidor.socket.Servidor;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class MessageSender {
 
-    private final Servidor server; // El servidor que gestiona las conexiones de los clientes
-    private final UUID clientId; // El ID único del cliente al que se envían los mensajes
     private final ObjectMapper objectMapper = new ObjectMapper(); // El ObjectMapper para convertir objetos a JSON
 
     /**
      * Constructor de la clase MessageSender.
-     *
-     * @param server El servidor que se utilizará para enviar mensajes.
-     * @param clientId El ID del cliente al que se enviarán los mensajes.
      */
-    public MessageSender(Servidor server, UUID clientId) {
-        this.server = server; // Inicializa el servidor
-        this.clientId = clientId; // Inicializa el ID del cliente
-    }
+    public MessageSender() {}
 
     /*private void sendMessageToClient(ClientInfo client, String message) {
         try {
@@ -46,6 +45,69 @@ public class MessageSender {
             // Imprime el stack trace del error y retorna null en caso de fallo
             e.printStackTrace();
             return null;
+        }
+    }
+
+    public void sendConfirmation(ClienteActivo cliente, int puntaje, int vidas) {
+        Socket socket = cliente.getSocket();
+        String json = String.format(
+                "{\"type_message\":\"start\",\"score\":%d,\"lifes\":%d}",
+                puntaje, vidas
+        );
+        try {
+            BufferedWriter w = new BufferedWriter(
+                    new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)
+            );
+            w.write(json);
+            w.write("\n");  // un mensaje por línea
+            w.flush();      // no cerramos el writer para no cerrar el socket
+        } catch (Exception e) {
+            System.err.println("Error enviando confirmación a " + cliente.getClientId() + ": " + e.getMessage());
+        }
+    }
+
+    public void sendFullServer(Socket socket, UUID clientId) {
+        final String json = "{\"type_message\":\"reach\",\"exp\":\"NoSpace\"}";
+        try {
+            BufferedWriter w = new BufferedWriter(
+                    new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)
+            );
+            w.write(json);
+            w.write("\n"); // framing por línea
+            w.flush();
+        } catch (Exception e) {
+            System.err.println("Error enviando 'reach/NoSpace' a " + clientId + ": " + e.getMessage());
+        }
+    }
+
+
+    public void sendOptionstoS(Socket socket, UUID clientId, List<String> disponibles){
+        try {
+            // Normaliza: quita null/blank, máximo 2
+            List<String> ops = (disponibles == null ? List.<String>of() : disponibles).stream()
+                    .filter(Objects::nonNull)
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .limit(2)
+                    .collect(Collectors.toList());
+
+            // "A"  /  "B"  /  "A, B"  /  "" (si no hay)
+            String which = String.join(", ", ops);
+
+            var msg = new java.util.HashMap<String, Object>();
+            msg.put("type_message", "options");
+            msg.put("which", which);
+
+            String json = new ObjectMapper().writeValueAsString(msg);
+
+            BufferedWriter w = new BufferedWriter(
+                    new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)
+            );
+            w.write(json);
+            w.write("\n"); // framing por línea
+            w.flush();
+        } catch (Exception e) {
+            System.err.println("Error enviando opciones a " + clientId + ": " + e.getMessage());
         }
     }
 

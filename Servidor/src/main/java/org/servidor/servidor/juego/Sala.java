@@ -1,5 +1,6 @@
 package org.servidor.servidor.juego;
 
+import org.servidor.servidor.mensajes.MessageSender;
 import org.servidor.servidor.socket.ClienteActivo;
 
 import java.util.ArrayList;
@@ -14,10 +15,13 @@ public class Sala {
     private boolean salaActiva = false;
 
     public List<ClienteActivo> clientes = new ArrayList<>(); // Lista de clientes conectados
+    private final MessageSender messageSender;
 
 
     public Sala(String partida){
+
         this.partida = partida;
+        this.messageSender = new MessageSender();
     }
 
     public boolean SalaOcupada(){
@@ -31,8 +35,11 @@ public class Sala {
     public void setCliente(ClienteActivo cliente, String tipo){
         if ("jugador".equals(tipo)) {
             salaActiva = true;
+        } else {
+            observadores ++;
         }
         clientes.add(cliente);
+        messageSender.sendConfirmation(cliente, puntaje, vidas);
         System.out.println("cliente añadido correctamente");
     }
 

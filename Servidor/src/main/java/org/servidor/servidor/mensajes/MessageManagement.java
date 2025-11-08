@@ -26,7 +26,7 @@ public class MessageManagement {
         this.server = server; // Inicializa la instancia del servidor
         this.socket = socket; // Inicializa el socket del cliente
         this.clientId = clientId; // Inicializa el identificador único del cliente
-        this.messageSender = new MessageSender(server, clientId);
+        this.messageSender = new MessageSender();
         this.clientRegistration = new RegistroCliente(server, socket, clientId);
     }
 
@@ -54,6 +54,10 @@ public class MessageManagement {
                     System.out.println("Llegó mensaje: " + messageType);
                     handleRegistration(jsonNode); // Maneja el registro
                     break;
+                case "schoice": // Si el tipo es "register"
+                    System.out.println("Llegó mensaje: " + messageType);
+                    handleSpectatorChoice(jsonNode); // Maneja el registro
+                    break;
                 //case LA IDEA ES IR METIENDO CASOS SEGUN LO QUE RECIBAMOS DEL CLIENTE
                 default: // Si el tipo de mensaje es desconocido
                     System.out.println("Tipo de mensaje desconocido: " + messageType);
@@ -77,8 +81,14 @@ public class MessageManagement {
         }
     }
 
-
-
-
+    private void handleSpectatorChoice(JsonNode jsonNode) {
+        try{
+            RegisterParser registerData = objectMapper.treeToValue(jsonNode, RegisterParser.class);
+            String partida = registerData.getType();
+            clientRegistration.incluirEspectador(partida);
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+    }
 
 }

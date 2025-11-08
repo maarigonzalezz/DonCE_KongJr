@@ -19,7 +19,7 @@ public class RegistroCliente {
         this.server = server;           // Asignación del servidor
         this.socket = socket;           // Asignación del socket
         this.clientId = clientId;       // Asignación del ID del cliente
-        messageSender = new MessageSender(server, clientId);
+        messageSender = new MessageSender();
 
     }
 
@@ -39,10 +39,11 @@ public class RegistroCliente {
         if (salaDisponible.isPresent()) {
             String partida = salaDisponible.get();
             System.out.println("Sala disponible: " + partida);
-            ClienteActivo clienteActivo = new ClienteActivo();
+            ClienteActivo clienteActivo = new ClienteActivo(socket, clientId, type);
             server.addClienteaSala(clienteActivo, partida, type);
         } else {
             System.out.println("No hay salas disponibles.");
+            messageSender.sendFullServer(socket, clientId);
         }
     }
 
@@ -50,9 +51,17 @@ public class RegistroCliente {
         List<String> disponibles = server.getEspectadoresSalas();
         if (!disponibles.isEmpty()) {
             System.out.println("Salas con cupo: " + disponibles);
+            messageSender.sendOptionstoS(socket, clientId, disponibles);
         } else {
             System.out.println("No hay salas disponibles para espectadores.");
+            messageSender.sendFullServer(socket, clientId);
         }
+    }
+
+    public void incluirEspectador(String partida){
+        String type = "espectador";
+        ClienteActivo clienteActivo = new ClienteActivo(socket, clientId, type);
+        server.addClienteaSala(clienteActivo, partida, type);
     }
 
 
