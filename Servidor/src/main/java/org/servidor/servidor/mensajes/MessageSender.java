@@ -111,4 +111,48 @@ public class MessageSender {
         }
     }
 
+    // Para enviar el snapshot
+    public void sendSnapshot(org.servidor.servidor.socket.ClienteActivo cliente,
+                             org.servidor.servidor.juego.reglas.Snapshot snap) {
+        try {
+            var msg = new java.util.HashMap<String, Object>();
+            msg.put("type_message", "snapshot");
+            msg.put("tick", snap.tick);
+            msg.put("score", snap.score);
+            msg.put("lifes", snap.vidas);
+            msg.put("speedFactor", snap.speedFactor);
+            msg.put("entidades", snap.entidades);
+
+            String json = objectMapper.writeValueAsString(msg);
+            BufferedWriter w = new BufferedWriter(
+                    new OutputStreamWriter(cliente.getSocket().getOutputStream(), StandardCharsets.UTF_8)
+            );
+            w.write(json);
+            w.write("\n"); // NDJSON
+            w.flush();
+        } catch (Exception e) {
+            System.err.println("Error enviando snapshot a " + cliente.getClientId() + ": " + e.getMessage());
+        }
+    }
+
+    //  anunciar fin de partida
+    public void sendGameOver(org.servidor.servidor.socket.ClienteActivo cliente, int scoreFinal) {
+        try {
+            var msg = new java.util.HashMap<String, Object>();
+            msg.put("type_message", "game_over");
+            msg.put("score", scoreFinal);
+            String json = objectMapper.writeValueAsString(msg);
+
+            BufferedWriter w = new BufferedWriter(
+                    new OutputStreamWriter(cliente.getSocket().getOutputStream(), StandardCharsets.UTF_8)
+            );
+            w.write(json);
+            w.write("\n");
+            w.flush();
+        } catch (Exception e) {
+            System.err.println("Error enviando GAME_OVER a " + cliente.getClientId() + ": " + e.getMessage());
+        }
+    }
+
+
 }

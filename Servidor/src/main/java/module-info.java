@@ -8,4 +8,5 @@ module org.servidor.servidor {
     exports org.servidor.servidor;
 
     opens org.servidor.servidor.jsonparser to com.fasterxml.jackson.databind;
+    opens org.servidor.servidor.juego.reglas to com.fasterxml.jackson.databind;
 }

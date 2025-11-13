@@ -9,6 +9,9 @@
 #include "juego.h"
 #include <SDL3/SDL.h>
 
+// Variable global para la partida (solución temporal)
+static char partida_actual[10] = "A"; // Por defecto "A"
+
 // manejar bien la librería de Winsock
 static int winsock_startup(void) {
     WSADATA wsa;
@@ -87,9 +90,20 @@ static unsigned __stdcall recv_thread(void* p) {
             break;
         }
         printf("<< %s\n", line);
+
+        // Detectar mensaje de inicio y asignar partida
+        if (strstr(line, "\"type_message\":\"start\"") != NULL) {
+            printf("Partida asignada: %s\n", partida_actual);
+        }
+
         fflush(stdout);  // asegura que lo ves de inmediato en la consola
     }
     return 0;
+}
+
+// Función para obtener la partida actual (para uso en juego.c)
+const char* get_partida_actual() {
+    return partida_actual;
 }
 
 int main(void){

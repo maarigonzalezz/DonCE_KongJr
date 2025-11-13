@@ -5,10 +5,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.servidor.servidor.socket.Servidor;
 import org.servidor.servidor.jsonparser.RegisterParser;
+import org.servidor.servidor.juego.Sala;
 import org.servidor.servidor.socket.RegistroCliente;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Objects;
 import java.util.UUID;
 
 
@@ -58,6 +60,12 @@ public class MessageManagement {
                     System.out.println("Llegó mensaje: " + messageType);
                     handleSpectatorChoice(jsonNode); // Maneja el registro
                     break;
+
+                // procesar los mensajes de input
+                case "input":
+                    System.out.println("Llegó mensaje input: " + jsonNode);
+                    handleInput(jsonNode);
+                    break;
                 //case LA IDEA ES IR METIENDO CASOS SEGUN LO QUE RECIBAMOS DEL CLIENTE
                 default: // Si el tipo de mensaje es desconocido
                     System.out.println("Tipo de mensaje desconocido: " + messageType);
@@ -91,4 +99,34 @@ public class MessageManagement {
         }
     }
 
+    /** enruta inputs del cliente hacia la Sala.
+     *  Espera: {"type_message":"input","action":"climb_up","partida":"A"}
+     *  Se puede guardar la partida desde el cliente
+     */
+    private void handleInput(JsonNode jsonNode) {
+        try {
+            String action  = jsonNode.path("action").asText(null);
+            String partida = jsonNode.path("partida").asText(null);
+            if (action == null) return;
+
+            // Busca la sala por 'partida'
+            Sala sala = null;
+            if (partida != null) {
+                for (Sala s : Servidor.Salas) {
+                    if (Objects.equals(s.getPartida(), partida)) { sala = s; break; }
+                }
+            }
+
+            if (sala == null) {
+                System.out.println("Input ignorado: sala no encontrada (partida=" + partida + ")");
+                return;
+            }
+
+            sala.applyInput(action);
+        } catch (Exception e) {
+            System.err.println("Error manejando input: " + e.getMessage());
+        }
+    }
 }
+
+

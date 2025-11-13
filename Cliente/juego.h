@@ -21,6 +21,10 @@ void juego_shutdown(Juego* j);
 // menú que recibe el socket y envía al hacer clic
 void juego_menu_network(Juego* j, SOCKET sock);
 
+// Para actualizar el juego
+void juego_principal(Juego* j, SOCKET sock);
+
 // Lo exportamos para que juego.c pueda llamar:
 int net_send_line(SOCKET s, const char* str);  // <- está definido en cliente.c
+const char* get_partida_actual();
 #endif //JUEGO_H
