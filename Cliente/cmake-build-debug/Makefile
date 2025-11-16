@@ -176,6 +176,30 @@ juego.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Cliente.dir\build.make CMakeFiles/Cliente.dir/juego.c.s
 .PHONY : juego.c.s
 
+renderer.obj: renderer.c.obj
+.PHONY : renderer.obj
+
+# target to build an object file
+renderer.c.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Cliente.dir\build.make CMakeFiles/Cliente.dir/renderer.c.obj
+.PHONY : renderer.c.obj
+
+renderer.i: renderer.c.i
+.PHONY : renderer.i
+
+# target to preprocess a source file
+renderer.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Cliente.dir\build.make CMakeFiles/Cliente.dir/renderer.c.i
+.PHONY : renderer.c.i
+
+renderer.s: renderer.c.s
+.PHONY : renderer.s
+
+# target to generate assembly for a file
+renderer.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Cliente.dir\build.make CMakeFiles/Cliente.dir/renderer.c.s
+.PHONY : renderer.c.s
+
 # Help Target
 help:
 	@echo The following are some of the valid targets for this Makefile:
@@ -191,6 +215,9 @@ help:
 	@echo ... juego.obj
 	@echo ... juego.i
 	@echo ... juego.s
+	@echo ... renderer.obj
+	@echo ... renderer.i
+	@echo ... renderer.s
 .PHONY : help
 
 

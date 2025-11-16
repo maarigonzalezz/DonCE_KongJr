@@ -348,4 +348,5 @@ CMakeFiles/Cliente.dir/cliente.c.obj: \
  C:/Users/Aless/OneDrive/Escritorio/DonCE_KongJr/Cliente/SDL3/x86_64-w64-mingw32/include/SDL3/SDL_timer.h \
  C:/Users/Aless/OneDrive/Escritorio/DonCE_KongJr/Cliente/SDL3/x86_64-w64-mingw32/include/SDL3/SDL_tray.h \
  C:/Users/Aless/OneDrive/Escritorio/DonCE_KongJr/Cliente/SDL3/x86_64-w64-mingw32/include/SDL3/SDL_version.h \
- C:/Users/Aless/OneDrive/Escritorio/DonCE_KongJr/Cliente/SDL3/x86_64-w64-mingw32/include/SDL3/SDL_oldnames.h
+ C:/Users/Aless/OneDrive/Escritorio/DonCE_KongJr/Cliente/SDL3/x86_64-w64-mingw32/include/SDL3/SDL_oldnames.h \
+ C:\Users\Aless\OneDrive\Escritorio\DonCE_KongJr\Cliente\renderer.h

@@ -80,12 +80,12 @@ clean: CMakeFiles/Cliente.dir/clean
 CMakeFiles/Cliente.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Cliente.dir\build.make CMakeFiles/Cliente.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Cliente.dir\build.make CMakeFiles/Cliente.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\Users\Aless\OneDrive\Escritorio\DonCE_KongJr\Cliente\cmake-build-debug\CMakeFiles --progress-num=1,2,3 "Built target Cliente"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\Users\Aless\OneDrive\Escritorio\DonCE_KongJr\Cliente\cmake-build-debug\CMakeFiles --progress-num=1,2,3,4 "Built target Cliente"
 .PHONY : CMakeFiles/Cliente.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/Cliente.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\Users\Aless\OneDrive\Escritorio\DonCE_KongJr\Cliente\cmake-build-debug\CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\Users\Aless\OneDrive\Escritorio\DonCE_KongJr\Cliente\cmake-build-debug\CMakeFiles 4
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 CMakeFiles/Cliente.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start C:\Users\Aless\OneDrive\Escritorio\DonCE_KongJr\Cliente\cmake-build-debug\CMakeFiles 0
 .PHONY : CMakeFiles/Cliente.dir/rule

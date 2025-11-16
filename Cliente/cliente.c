@@ -8,9 +8,14 @@
 #include "constants.h"
 #include "juego.h"
 #include <SDL3/SDL.h>
+#include "renderer.h"
+
 
 // Variable global para la partida (solución temporal)
 static char partida_actual[10] = "A"; // Por defecto "A"
+
+//variable global para el renderer
+static Renderer* renderer_global = NULL;
 
 // manejar bien la librería de Winsock
 static int winsock_startup(void) {
@@ -85,18 +90,28 @@ static unsigned __stdcall recv_thread(void* p) {
     while (ctx->running) {
         int n = recv_line(ctx->sock, line, sizeof line);
         if (n <= 0) {
-            // 0 = cerrado limpio; -1 = error
             if (ctx->running) fprintf(stderr, "<< conexión cerrada o error\n");
             break;
         }
-        printf("<< %s\n", line);
+        printf(" Mensaje recibido (%d bytes): %s\n", n, line);
 
-        // Detectar mensaje de inicio y asignar partida
         if (strstr(line, "\"type_message\":\"start\"") != NULL) {
             printf("Partida asignada: %s\n", partida_actual);
         }
 
-        fflush(stdout);  // asegura que lo ves de inmediato en la consola
+        // Para debuggear , para verificar si es un sanapshot
+        //  Procesar snapshot - VERIFICAR SI RENDERER_GLOBAL ESTÁ INICIALIZADO
+        if (strstr(line, "\"type_message\":\"snapshot\"") != NULL) {
+            printf(" Snapshot detectado\n");
+            if (renderer_global != NULL) {
+                printf(" Llamando a renderer_update_state...\n");
+                renderer_update_state(renderer_global, line);
+            } else {
+                printf(" ERROR: renderer_global es NULL - no se puede actualizar estado\n");
+            }
+        }
+
+        fflush(stdout);
     }
     return 0;
 }
@@ -120,11 +135,15 @@ int main(void){
     uintptr_t th = _beginthreadex(NULL, 0, recv_thread, &ctx, 0, NULL);
 
     // Inicia la ventana del juego (menú)
-    Juego juego = {0};
-    if (!juego_init(&juego, "Menu - Selecciona rol", 900, 540)){
-        fprintf(stderr, "No se pudo iniciar SDL3\n");
+    Juego juego;
+    if (!juego_init(&juego, "DonCEy Kong Jr", 800, 600)) {
+        fprintf(stderr, "No se pudo iniciar el juego\n");
         closesocket(sock); winsock_cleanup(); return 1;
     }
+
+    //  CORREGIR: Pasar el renderer correctamente al hilo lector
+    renderer_global = &juego.renderer;
+    printf(" Renderer global configurado: %p\n", (void*)renderer_global);
 
     // Menú con red: la función atiende el loop, y manda "jugador"/"espectador" al hacer clic
     juego_menu_network(&juego, sock);

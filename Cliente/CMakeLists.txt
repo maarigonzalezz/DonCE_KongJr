@@ -13,6 +13,8 @@ add_executable(Cliente
         cliente.c
         juego.h
         juego.c
+        renderer.h
+        renderer.c
 )
 
 if (WIN32)

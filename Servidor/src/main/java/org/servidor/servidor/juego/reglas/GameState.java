@@ -20,8 +20,8 @@ public final class GameState {
     public void addScore(int pts) { score += pts; }
 
     public void loseLife() {
-        vidas = Math.max(0, vidas - 1);
-        if (vidas == 0) fase = Fase.GAME_OVER;
+       // vidas = Math.max(0, vidas - 1);
+        //if (vidas == 0) fase = Fase.GAME_OVER;
     }
 
     public void victoryBoost(float factor) {

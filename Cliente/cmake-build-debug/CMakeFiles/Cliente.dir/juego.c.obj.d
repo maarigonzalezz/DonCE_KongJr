@@ -340,6 +340,7 @@ CMakeFiles/Cliente.dir/juego.c.obj: \
  C:/Program\ Files/JetBrains/CLion\ 2024.1.4/bin/mingw/x86_64-w64-mingw32/include/ws2def.h \
  C:/Program\ Files/JetBrains/CLion\ 2024.1.4/bin/mingw/x86_64-w64-mingw32/include/psdk_inc/_wsa_errnos.h \
  C:/Program\ Files/JetBrains/CLion\ 2024.1.4/bin/mingw/x86_64-w64-mingw32/include/qos.h \
+ C:\Users\Aless\OneDrive\Escritorio\DonCE_KongJr\Cliente\renderer.h \
  C:\Users\Aless\OneDrive\Escritorio\DonCE_KongJr\Cliente\constants.h \
  C:/Program\ Files/JetBrains/CLion\ 2024.1.4/bin/mingw/x86_64-w64-mingw32/include/stdio.h \
  C:/Program\ Files/JetBrains/CLion\ 2024.1.4/bin/mingw/x86_64-w64-mingw32/include/sec_api/stdio_s.h

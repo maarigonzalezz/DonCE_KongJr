@@ -32,7 +32,7 @@ public class Sala {
     public final List<ClienteActivo> clientes = new ArrayList<>(); // conectados
     private final MessageSender messageSender;
 
-    // --- Juego / simulación ---
+    // --- Juego
     private Level level;
     private GameState gameState;
     private List<Entity> entities;
@@ -74,43 +74,22 @@ public class Sala {
         System.out.println("cliente añadido correctamente");
     }
 
-    /** Arranca la simulación si no está corriendo. */
+    /** Mae en esta parte era que simulaba , ahora solo cuando el cliente mueve las teclas  */
     private synchronized void startLoopIfNeeded() {
         if (loop != null) return;
 
         level = new Level();
         entities = new ArrayList<>();
 
-        // Spawns iniciales (ajustables)
+        // Solo el jugador
         int t = level.map().tileSize();
-        entities.add(new DKJr(t * 2.5f, t * 3.0f));
-        entities.add(new CocodriloRojo(2, 16 * 12, 60f));
-        entities.add(new CocodriloAzul(0, 16 * 10, 80f));
+        entities.add(new DKJr(t * 7.5f, t * 2.0f));
 
         loop = new GameLoop(level, entities, gameState);
 
-        exec = Executors.newSingleThreadScheduledExecutor();
-        final float dt = 1f / 30f;
-        exec.scheduleAtFixedRate(() -> {
-            try {
-                loop.tick(dt);
-                tickCounter++;
 
-                // Publica snapshot continuo
-                broadcastSnapshot(buildSnapshot());
-
-                // Para poder anunciar el fin de la partida
-                if (gameState.fase() == GameState.Fase.GAME_OVER) {
-                    for (ClienteActivo c : clientes) {
-                        messageSender.sendGameOver(c, gameState.score());
-                    }
-                    // Para detener la simulación
-                     exec.shutdownNow();
-                }
-            } catch (Throwable t1) {
-                t1.printStackTrace();
-            }
-        }, 0, (long) (1000 * dt), TimeUnit.MILLISECONDS);
+        // EL JUEGO SOLO AVANZARÁ CUANDO LLEGUEN INPUTS
+        System.out.println("🎮 Juego listo - esperando inputs del jugador");
     }
 
     /** Reinicia sala (sesión y simulación). */
@@ -166,16 +145,23 @@ public class Sala {
     /** Recibe acciones del cliente y las aplica al primer DKJr hallado. */
     public void applyInput(String accion) {
         if (entities == null) return;
+
         DKJr dk = null;
         for (Entity e : entities) if (e instanceof DKJr) { dk = (DKJr) e; break; }
         if (dk == null) return;
 
         switch (accion.toLowerCase()) {
-            case "climb_up"   -> dk.climbUp(2.0f);     // se puede ajustar
+            case "climb_up"   -> dk.climbUp(2.0f);
             case "climb_down" -> dk.climbDown(2.0f);
             case "release"    -> dk.release();
-            case "move_left" -> dk.moveLeft();
-            case "move_rigth" -> dk.moveRight();
+            case "move_left"  -> dk.moveLeft();
+            case "move_right" -> dk.moveRight();
+        }
+
+        //  AVANZAR UN TICK DEL JUEGO DESPUÉS DE CADA INPUT
+        if (loop != null) {
+            loop.tick(1f/30f); // Un frame de simulación
+            broadcastSnapshot(buildSnapshot());
         }
     }
 

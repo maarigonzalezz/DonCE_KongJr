@@ -98,21 +98,38 @@ CMakeFiles/Cliente.dir/juego.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/Cliente.dir/juego.c.s"
 	C:\PROGRA~1\JETBRA~1\CLION2~1.4\bin\mingw\bin\gcc.exe $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S C:\Users\Aless\OneDrive\Escritorio\DonCE_KongJr\Cliente\juego.c -o CMakeFiles\Cliente.dir\juego.c.s
 
+CMakeFiles/Cliente.dir/renderer.c.obj: CMakeFiles/Cliente.dir/flags.make
+CMakeFiles/Cliente.dir/renderer.c.obj: CMakeFiles/Cliente.dir/includes_C.rsp
+CMakeFiles/Cliente.dir/renderer.c.obj: C:/Users/Aless/OneDrive/Escritorio/DonCE_KongJr/Cliente/renderer.c
+CMakeFiles/Cliente.dir/renderer.c.obj: CMakeFiles/Cliente.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\Users\Aless\OneDrive\Escritorio\DonCE_KongJr\Cliente\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building C object CMakeFiles/Cliente.dir/renderer.c.obj"
+	C:\PROGRA~1\JETBRA~1\CLION2~1.4\bin\mingw\bin\gcc.exe $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/Cliente.dir/renderer.c.obj -MF CMakeFiles\Cliente.dir\renderer.c.obj.d -o CMakeFiles\Cliente.dir\renderer.c.obj -c C:\Users\Aless\OneDrive\Escritorio\DonCE_KongJr\Cliente\renderer.c
+
+CMakeFiles/Cliente.dir/renderer.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/Cliente.dir/renderer.c.i"
+	C:\PROGRA~1\JETBRA~1\CLION2~1.4\bin\mingw\bin\gcc.exe $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E C:\Users\Aless\OneDrive\Escritorio\DonCE_KongJr\Cliente\renderer.c > CMakeFiles\Cliente.dir\renderer.c.i
+
+CMakeFiles/Cliente.dir/renderer.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/Cliente.dir/renderer.c.s"
+	C:\PROGRA~1\JETBRA~1\CLION2~1.4\bin\mingw\bin\gcc.exe $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S C:\Users\Aless\OneDrive\Escritorio\DonCE_KongJr\Cliente\renderer.c -o CMakeFiles\Cliente.dir\renderer.c.s
+
 # Object files for target Cliente
 Cliente_OBJECTS = \
 "CMakeFiles/Cliente.dir/cliente.c.obj" \
-"CMakeFiles/Cliente.dir/juego.c.obj"
+"CMakeFiles/Cliente.dir/juego.c.obj" \
+"CMakeFiles/Cliente.dir/renderer.c.obj"
 
 # External object files for target Cliente
 Cliente_EXTERNAL_OBJECTS =
 
 Cliente.exe: CMakeFiles/Cliente.dir/cliente.c.obj
 Cliente.exe: CMakeFiles/Cliente.dir/juego.c.obj
+Cliente.exe: CMakeFiles/Cliente.dir/renderer.c.obj
 Cliente.exe: CMakeFiles/Cliente.dir/build.make
 Cliente.exe: CMakeFiles/Cliente.dir/linkLibs.rsp
 Cliente.exe: CMakeFiles/Cliente.dir/objects1.rsp
 Cliente.exe: CMakeFiles/Cliente.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=C:\Users\Aless\OneDrive\Escritorio\DonCE_KongJr\Cliente\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking C executable Cliente.exe"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=C:\Users\Aless\OneDrive\Escritorio\DonCE_KongJr\Cliente\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking C executable Cliente.exe"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles\Cliente.dir\link.txt --verbose=$(VERBOSE)
 	"C:\Program Files\JetBrains\CLion 2024.1.4\bin\cmake\win\x64\bin\cmake.exe" -E copy_if_different C:/Users/Aless/OneDrive/Escritorio/DonCE_KongJr/Cliente/SDL3/x86_64-w64-mingw32/bin/SDL3.dll C:/Users/Aless/OneDrive/Escritorio/DonCE_KongJr/Cliente/cmake-build-debug
 

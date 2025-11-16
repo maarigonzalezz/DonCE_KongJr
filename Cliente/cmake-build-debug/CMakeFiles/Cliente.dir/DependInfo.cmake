@@ -10,6 +10,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "C:/Users/Aless/OneDrive/Escritorio/DonCE_KongJr/Cliente/cliente.c" "CMakeFiles/Cliente.dir/cliente.c.obj" "gcc" "CMakeFiles/Cliente.dir/cliente.c.obj.d"
   "C:/Users/Aless/OneDrive/Escritorio/DonCE_KongJr/Cliente/juego.c" "CMakeFiles/Cliente.dir/juego.c.obj" "gcc" "CMakeFiles/Cliente.dir/juego.c.obj.d"
+  "C:/Users/Aless/OneDrive/Escritorio/DonCE_KongJr/Cliente/renderer.c" "CMakeFiles/Cliente.dir/renderer.c.obj" "gcc" "CMakeFiles/Cliente.dir/renderer.c.obj.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

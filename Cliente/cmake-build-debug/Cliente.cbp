@@ -93,6 +93,12 @@
 		<Unit filename="C:/Users/Aless/OneDrive/Escritorio/DonCE_KongJr/Cliente/juego.h">
 			<Option target="Cliente"/>
 		</Unit>
+		<Unit filename="C:/Users/Aless/OneDrive/Escritorio/DonCE_KongJr/Cliente/renderer.c">
+			<Option target="Cliente"/>
+		</Unit>
+		<Unit filename="C:/Users/Aless/OneDrive/Escritorio/DonCE_KongJr/Cliente/renderer.h">
+			<Option target="Cliente"/>
+		</Unit>
 		<Unit filename="C:/Users/Aless/OneDrive/Escritorio/DonCE_KongJr/Cliente/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>
