@@ -434,9 +434,12 @@ void actualizar_logica_jugador(GameState* st, float dt) {
             else
                 st->jr_x = x;
 
-            // Limitar Y dentro de la liana
-            float minY = lianas[st->vine_idx].top    - JR_HEIGHT;
-            float maxY = lianas[st->vine_idx].bottom - JR_HEIGHT;
+            float l_top, l_bottom;
+            liana_bounds(st->vine_idx, &l_top, &l_bottom);
+
+            float minY = l_top    - JR_HEIGHT;
+            float maxY = l_bottom - JR_HEIGHT;
+
             if (st->jr_y < minY) st->jr_y = minY;
             if (st->jr_y > maxY) st->jr_y = maxY;
         }
@@ -453,24 +456,36 @@ void actualizar_logica_jugador(GameState* st, float dt) {
         st->jr_x = WINDOW_WIDTH - JR_WIDTH;
 }
 
+static void liana_bounds(int idx, float* top, float* bottom) {
+    const Liana* L = &lianas[idx];
 
+    *top = L->top;
 
+    if (idx < 4) {
+        // En las primeras 4, bottom ya ES coordenada Y
+        *bottom = L->bottom;
+    } else {
+        // En las demás, bottom está guardando la ALTURA
+        *bottom = L->top + L->bottom;
+    }
+}
 
 static int buscar_liana_cercana(const GameState* st) {
-    float jr_cx = st->jr_x + JR_WIDTH * 0.5f;
-    float jr_feet = st->jr_y + JR_HEIGHT; // altura de los pies
+    float jr_cx   = st->jr_x + JR_WIDTH * 0.5f;
+    float jr_feet = st->jr_y + JR_HEIGHT;
 
-    int best = -1;
+    int   best   = -1;
     float best_dx = HOOK_RADIUS + 1.0f;
 
     for (int i = 0; i < NUM_LIANAS; ++i) {
-        const Liana* L = &lianas[i];
+        float l_top, l_bottom;
+        liana_bounds(i, &l_top, &l_bottom);
 
         // ¿está Jr a la altura vertical de la liana?
-        if (jr_feet < L->top || jr_feet > L->bottom)
+        if (jr_feet < l_top || jr_feet > l_bottom)
             continue;
 
-        float dx = fabsf(jr_cx - L->x);
+        float dx = fabsf(jr_cx - lianas[i].x);
         if (dx < best_dx && dx <= HOOK_RADIUS) {
             best_dx = dx;
             best = i;
@@ -488,20 +503,20 @@ static void enganchar_a_liana(GameState* st, int idx) {
     st->jr_vy = 0;
 
     float x = lianas[idx].x;
-
-    // usar el lado actual para decidir donde colocarlo
-    if (st->jr_facing ==  JR_FACE_LEFT) {
-        st->jr_x = x - JR_WIDTH;      // pegado a la izquierda
+    if (st->jr_facing == JR_FACE_LEFT) {
+        st->jr_x = x - JR_WIDTH;
     } else {
-        st->jr_x = x;                 // pegado a la derecha
+        st->jr_x = x;
     }
 
-    // mantenerlo a la misma altura en la que estaba (pies en la liana)
+    float l_top, l_bottom;
+    liana_bounds(idx, &l_top, &l_bottom);
+
     float jr_feet = st->jr_y + JR_HEIGHT;
-    if (jr_feet < lianas[idx].top)
-        st->jr_y = lianas[idx].top - JR_HEIGHT;
-    else if (jr_feet > lianas[idx].bottom)
-        st->jr_y = lianas[idx].bottom - JR_HEIGHT;
+    if (jr_feet < l_top)
+        st->jr_y = l_top - JR_HEIGHT;
+    else if (jr_feet > l_bottom)
+        st->jr_y = l_bottom - JR_HEIGHT;
 }
 
 // Ajusta jr_y / jr_vy / on_ground si aterriza sobre una plataforma.

@@ -199,6 +199,7 @@
 // configuraciones generales
 #define JR_SPEED 180.0f  // píxeles por segundo
 #define HOOK_RADIUS 20.0f  // qué tan cerca debe estar en X para engancharse
+#define HOOK_MARGIN_Y   10.0f   // tolerancia vertical extra
 #define VINE_SPEED  140.0f // velocidad subir/bajar
 #define JR_JUMP_VY   -320.0f   // velocidad inicial del salto (negativa = hacia arriba)
 #define JR_GRAVITY    900.0f   // gravedad

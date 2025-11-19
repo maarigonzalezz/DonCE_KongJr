@@ -83,6 +83,7 @@ void manejar_input_jugador(SDL_Event* ev, GameState* st);
 // para el jugador:
 static int buscar_liana_cercana(const GameState* st);
 static void enganchar_a_liana(GameState* st, int idx);
+static void liana_bounds(int idx, float* top, float* bottom);
 static void aplicar_colision_plataformas(GameState* st, float old_x, float old_y);
 
 #endif //JUEGO_H
