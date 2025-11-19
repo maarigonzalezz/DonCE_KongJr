@@ -17,6 +17,8 @@ static char partida_actual[10] = "A"; // Por defecto "A"
 //variable global para el renderer
 static Renderer* renderer_global = NULL;
 
+static volatile int g_cerrar_por_nospace = 0;
+
 // manejar bien la librería de Winsock
 static int winsock_startup(void) {
     WSADATA wsa;
@@ -87,20 +89,34 @@ typedef struct {
 static unsigned __stdcall recv_thread(void* p) {
     RecvCtx* ctx = (RecvCtx*)p;
     char line[1024];
+
     while (ctx->running) {
         int n = recv_line(ctx->sock, line, sizeof line);
         if (n <= 0) {
-            if (ctx->running) fprintf(stderr, "<< conexión cerrada o error\n");
+            if (ctx->running) {
+                fprintf(stderr, "<< conexión cerrada o error\n");
+            }
             break;
         }
+
         printf(" Mensaje recibido (%d bytes): %s\n", n, line);
 
+        // 1) Caso especial: reach / NoSpace -> cerrar cliente
+        if (strstr(line, "\"type_message\":\"reach\"") &&
+            strstr(line, "\"exp\":\"NoSpace\"")) {
+
+            printf(">> Servidor dice NoSpace, cerrando cliente...\n");
+            g_cerrar_por_nospace = 1;
+
+            // Salimos del hilo
+            break;
+            }
+
+        // 2) Resto de lógica que ya tenías
         if (strstr(line, "\"type_message\":\"start\"") != NULL) {
             printf("Partida asignada: %s\n", partida_actual);
         }
 
-        // Para debuggear , para verificar si es un sanapshot
-        //  Procesar snapshot - VERIFICAR SI RENDERER_GLOBAL ESTÁ INICIALIZADO
         if (strstr(line, "\"type_message\":\"snapshot\"") != NULL) {
             printf(" Snapshot detectado\n");
             if (renderer_global != NULL) {
@@ -113,56 +129,265 @@ static unsigned __stdcall recv_thread(void* p) {
 
         fflush(stdout);
     }
+
     return 0;
 }
+
 
 // Función para obtener la partida actual (para uso en juego.c)
 const char* get_partida_actual() {
     return partida_actual;
 }
 
+int leer_mensaje_servidor(SOCKET sock, char* buffer, size_t cap) {
+    int n = recv_line(sock, buffer, (int)cap);
+    if (n <= 0) {
+        // No imprimo error fuerte aquí porque quien llame decide qué hacer
+        return n;
+    }
+
+    printf(" Mensaje recibido (%d bytes): %s\n", n, buffer);
+    fflush(stdout);
+    return n;
+}
+
+static void cerrar_cliente(SOCKET sock, RecvCtx* ctx, uintptr_t th, Juego* juego) {
+    // Avisar al servidor que nos vamos (cuando tú decidas)
+    net_send_line(sock, "{\"type_message\":\"salir\"}");
+
+    shutdown(sock, SD_SEND);
+    ctx->running = 0;
+    shutdown(sock, SD_RECEIVE);
+
+    WaitForSingleObject((HANDLE)th, 2000);
+    CloseHandle((HANDLE)th);
+
+    closesocket(sock);
+    WSACleanup();
+
+    juego_shutdown(juego);
+}
+
 int main(void){
-    if (winsock_startup() != 0){
-        fprintf(stderr, "WSAStartup failed\n"); return 1;
-    }
-    SOCKET sock = connect_tcp(SERVER_HOST, SERVER_PORT);
-    if (sock == INVALID_SOCKET){
-        fprintf(stderr, "No se pudo conectar a %s:%s\n", SERVER_HOST, SERVER_PORT);
-        winsock_cleanup(); return 1;
-    }
-
-    RecvCtx ctx = { .sock = sock, .running = 1 };
-    uintptr_t th = _beginthreadex(NULL, 0, recv_thread, &ctx, 0, NULL);
-
-    // Inicia la ventana del juego (menú)
+    // 1) Iniciar SDL y ventana del juego (solo una vez)
     Juego juego;
-    if (!juego_init(&juego, "DonCEy Kong Jr", 800, 600)) {
+    if (!juego_init(&juego, WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT)) {
         fprintf(stderr, "No se pudo iniciar el juego\n");
-        closesocket(sock); winsock_cleanup(); return 1;
+        return 1;
     }
 
-    //  CORREGIR: Pasar el renderer correctamente al hilo lector
+    // Renderer global para snapshots
     renderer_global = &juego.renderer;
     printf(" Renderer global configurado: %p\n", (void*)renderer_global);
 
-    // Menú con red: la función atiende el loop, y manda "jugador"/"espectador" al hacer clic
-    juego_menu_network(&juego, sock);
+    int programa_corriendo = 1;
 
-    // 1) Decirle chao al server
-    net_send_line(sock, "{\"type_message\":\"salir\"}");
-    // 2) Half-close de salida: manda FIN para que el servidor vea EOF al leer
-    shutdown(sock, SD_SEND);
-    // 3) Deja corriendo el hilo lector hasta que reciba 0 (EOF) o un último mensaje.
-    ctx.running = 0;
-    // 4) Despierta al hilo si está bloqueado en recv
-    shutdown(sock, SD_RECEIVE);
-    // 5) Espera al hilo y limpia
-    WaitForSingleObject((HANDLE)th, 2000);
-    CloseHandle((HANDLE)th);
-    // 6) Cierra el socket y Winsock
-    closesocket(sock);
-    WSACleanup();
-    // 7) Cierra SDL
+    while (programa_corriendo) {
+
+        // --- MENÚ PRINCIPAL: jugador / espectador ---
+        MenuOpcion opcion = juego_menu(&juego);
+        if (opcion == MENU_OPCION_NINGUNA) {
+            // Usuario cerró la ventana
+            break;
+        }
+
+        // --- Winsock + conexión ---
+        if (winsock_startup() != 0){
+            fprintf(stderr, "WSAStartup failed\n");
+            break;
+        }
+
+        SOCKET sock = connect_tcp(SERVER_HOST, SERVER_PORT);
+        if (sock == INVALID_SOCKET){
+            fprintf(stderr, "No se pudo conectar a %s:%s\n", SERVER_HOST, SERVER_PORT);
+            winsock_cleanup();
+            // Volver al menú principal para reintentar
+            continue;
+        }
+
+        // --- Enviar register con jugador/espectador ---
+        const char* tipo = (opcion == MENU_OPCION_JUGADOR) ? "jugador" : "espectador";
+
+        char msg[128];
+        snprintf(msg, sizeof msg,
+                 "{\"type_message\":\"register\",\"type\":\"%s\"}", tipo);
+
+        if (net_send_line(sock, msg) != 0) {
+            fprintf(stderr, "Error enviando mensaje de registro\n");
+            closesocket(sock);
+            winsock_cleanup();
+            continue; // volver al menú
+        }
+
+        char line[1024];
+
+        // --- Leer respuesta inicial del servidor ---
+        int n = leer_mensaje_servidor(sock, line, sizeof line);
+        if (n <= 0) {
+            fprintf(stderr, "Error o cierre al leer respuesta de registro\n");
+            closesocket(sock);
+            winsock_cleanup();
+            continue;
+        }
+
+        // Caso general: servidor dice que no hay espacio
+        if (strstr(line, "\"type_message\":\"reach\"") &&
+            strstr(line, "\"exp\":\"NoSpace\"")) {
+
+            printf("Servidor dice NoSpace, volvemos al menú principal.\n");
+            closesocket(sock);
+            winsock_cleanup();
+            continue;  // NO cerramos la ventana
+        }
+
+        // -----------------------------------------------------------------
+        //                       CAMINO JUGADOR
+        // -----------------------------------------------------------------
+        if (opcion == MENU_OPCION_JUGADOR) {
+
+            // Esperamos que lo que acabamos de leer sea "start"
+            if (!strstr(line, "\"type_message\":\"start\"")) {
+                printf("Esperaba 'start' para jugador y llegó otra cosa.\n");
+                closesocket(sock);
+                winsock_cleanup();
+                continue;
+            }
+
+            // Armar el estado inicial del juego
+            GameState state;
+            // si ya tienes un parseo de start, úsalo aquí:
+            // parse_start_message(line, &state);
+            // por ahora, algo básico:
+            state.vidas = 3;
+            state.score = 0;
+            state.speed = 1.0f;
+            state.jr_x = JR_START_X;
+            state.jr_y = JR_START_Y;
+            state.jr_mode   = JR_MODE_GROUND;
+            state.jr_facing = JR_FACE_RIGHT;
+            state.jr_vx = 0;
+            state.jr_vy = 0;
+            state.vine_idx = -1;
+            state.on_ground = 1;
+
+            // Ya arrancó la partida -> ahora sí hilo receptor
+            RecvCtx ctx = { .sock = sock, .running = 1 };
+            uintptr_t th = _beginthreadex(NULL, 0, recv_thread, &ctx, 0, NULL);
+            if (th == 0) {
+                fprintf(stderr, "No se pudo crear el hilo receptor\n");
+                closesocket(sock);
+                winsock_cleanup();
+                continue;
+            }
+
+            game_loop_jugador(&juego, sock, &state);
+
+            // Cerrar bien la red
+            net_send_line(sock, "{\"type_message\":\"salir\"}");
+            shutdown(sock, SD_SEND);
+            ctx.running = 0;
+            shutdown(sock, SD_RECEIVE);
+            WaitForSingleObject((HANDLE)th, 2000);
+            CloseHandle((HANDLE)th);
+            closesocket(sock);
+            winsock_cleanup();
+
+            programa_corriendo = 0;  // terminó el juego
+            break;
+        }
+
+        // -----------------------------------------------------------------
+        //                       CAMINO ESPECTADOR
+        // -----------------------------------------------------------------
+        else { // opcion == MENU_OPCION_ESPECTADOR
+
+            // Aquí 'line' debería ser el mensaje con las opciones, algo tipo:
+            // {"type_message":"options","which":"A, B"}
+
+            int tieneA = 0;
+            int tieneB = 0;
+
+            if (strstr(line, "\"which\":\"A\"") || strstr(line, "\"which\":\"A, B\""))
+                tieneA = 1;
+            if (strstr(line, "\"which\":\"B\"") || strstr(line, "\"which\":\"A, B\""))
+                tieneB = 1;
+
+            // Mostrar menú extra para espectador (A / B)
+            WhichOpcion w = juego_menu_which(&juego, tieneA, tieneB);
+
+            if (w == WHICH_NONE) {
+                // Usuario cerró la ventana en el menú de salas
+                closesocket(sock);
+                winsock_cleanup();
+                programa_corriendo = 0;
+                break;
+            }
+
+            const char* choice = (w == WHICH_A) ? "A" : "B";
+
+            // Mensaje que tú dijiste:
+            // {"type_message":"schoice","type":"%s"}
+            char msg_schoice[128];
+            snprintf(msg_schoice, sizeof msg_schoice,
+                     "{\"type_message\":\"schoice\",\"type\":\"%s\"}", choice);
+
+            if (net_send_line(sock, msg_schoice) != 0) {
+                fprintf(stderr, "Error enviando mensaje 'schoice'\n");
+                closesocket(sock);
+                winsock_cleanup();
+                continue; // volver al menú principal
+            }
+
+            // Esperar ahora el 'start' para espectador
+            n = leer_mensaje_servidor(sock, line, sizeof line);
+            if (n <= 0 || !strstr(line, "\"type_message\":\"start\"")) {
+                fprintf(stderr, "Error esperando 'start' para espectador\n");
+                closesocket(sock);
+                winsock_cleanup();
+                continue;
+            }
+
+            // Ya sabemos qué partida observar -> crear hilo receptor
+            RecvCtx ctx = { .sock = sock, .running = 1 };
+            uintptr_t th = _beginthreadex(NULL, 0, recv_thread, &ctx, 0, NULL);
+            if (th == 0) {
+                fprintf(stderr, "No se pudo crear el hilo receptor\n");
+                closesocket(sock);
+                winsock_cleanup();
+                continue;
+            }
+
+            int running = 1;
+            while (running) {
+                SDL_Event ev;
+                while (SDL_PollEvent(&ev)) {
+                    if (ev.type == SDL_EVENT_QUIT) {
+                        running = 0;
+                        break;
+                    }
+                    // TODO: aquí dibujas la vista de espectador
+                }
+
+                SDL_Delay(16);
+            }
+
+            // Cerrar bien la red
+            net_send_line(sock, "{\"type_message\":\"salir\"}");
+            shutdown(sock, SD_SEND);
+            ctx.running = 0;
+            shutdown(sock, SD_RECEIVE);
+            WaitForSingleObject((HANDLE)th, 2000);
+            CloseHandle((HANDLE)th);
+            closesocket(sock);
+            winsock_cleanup();
+
+            programa_corriendo = 0;  // terminó la sesión de espectador
+            break;
+        }
+    }
+
     juego_shutdown(&juego);
     return 0;
 }
+
+

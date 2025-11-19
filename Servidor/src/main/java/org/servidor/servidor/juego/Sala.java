@@ -61,16 +61,19 @@ public class Sala {
 
     /** Agrega cliente; si es jugador, activa sala y arranca loop si no está corriendo. */
     public void setCliente(ClienteActivo cliente, String tipo) {
+        int control;
         if ("jugador".equalsIgnoreCase(tipo)) {
             salaActiva = true;
             startLoopIfNeeded();
+            control = 1;
         } else {
             observadores++;
+            control = 0;
         }
         clientes.add(cliente);
 
         // Confirma con score/vidas desde GameState
-        messageSender.sendConfirmation(cliente, gameState.score(), gameState.vidas());
+        messageSender.sendConfirmation(cliente, gameState.score(), gameState.vidas(), control);
         System.out.println("cliente añadido correctamente");
     }
 

@@ -66,7 +66,7 @@
 			[
 				{
 					"backtrace" : 4,
-					"path" : "C:/Users/Aless/OneDrive/Escritorio/DonCE_KongJr/Cliente/SDL3/x86_64-w64-mingw32/include"
+					"path" : "C:/Users/gonza/Desktop/tarea4 paradigmas/DonCE_KongJr/Cliente/SDL3/x86_64-w64-mingw32/include"
 				}
 			],
 			"language" : "C",
@@ -101,7 +101,7 @@
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "-LC:\\Users\\Aless\\OneDrive\\Escritorio\\DonCE_KongJr\\Cliente\\SDL3\\x86_64-w64-mingw32\\lib",
+				"fragment" : "-LC:\\Users\\gonza\\Desktop\\TAREA4~1\\DONCE_~1\\Cliente\\SDL3\\X86_64~1\\lib",
 				"role" : "libraryPath"
 			},
 			{

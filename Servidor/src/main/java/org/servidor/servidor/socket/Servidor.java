@@ -95,7 +95,7 @@ public class Servidor {
             if (Objects.equals(s.getPartida(), partida)){
                 s.setCliente(cliente, jugador);
                 cliente.setPartida(partida);
-                System.out.println("se agregó cliente de tipo" + jugador + "a" + partida);
+                System.out.println("se agregó cliente de tipo " + jugador + " a la partida " + partida);
             }
         }
 

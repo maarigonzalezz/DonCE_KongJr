@@ -1,15 +1,11 @@
 package org.servidor.servidor.mensajes;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.servidor.servidor.socket.ClienteActivo;
-import org.servidor.servidor.socket.Servidor;
 
 import java.io.BufferedWriter;
-import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -48,11 +44,11 @@ public class MessageSender {
         }
     }
 
-    public void sendConfirmation(ClienteActivo cliente, int puntaje, int vidas) {
+    public void sendConfirmation(ClienteActivo cliente, int puntaje, int vidas, int control) {
         Socket socket = cliente.getSocket();
         String json = String.format(
-                "{\"type_message\":\"start\",\"score\":%d,\"lifes\":%d}",
-                puntaje, vidas
+                "{\"type_message\":\"start\",\"score\":%d,\"lifes\":%d, \"control\":%d}",
+                puntaje, vidas, control
         );
         try {
             BufferedWriter w = new BufferedWriter(
