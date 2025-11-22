@@ -2,6 +2,7 @@ package org.servidor.servidor.juego.reglas;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /** Estado mínimo serializable para clientes/espectadores. */
 public final class Snapshot {
@@ -13,9 +14,8 @@ public final class Snapshot {
     public final List<EntityState> entidades = new ArrayList<>();
 
     public static final class EntityState {
-        public String tipo;   // "DKJr", "CocodriloRojo", "CocodriloAzul", "Fruta"
-        public String id;     // UUID.toString()
+        public String tipo;
+        public String id;
         public float x, y;    // centro en píxeles
-        public float w, h;    // bbox (para debug/cliente)
     }
 }

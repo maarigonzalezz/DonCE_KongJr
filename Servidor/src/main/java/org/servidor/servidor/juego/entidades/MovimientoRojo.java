@@ -1,54 +1,40 @@
 package org.servidor.servidor.juego.entidades;
 
-import org.servidor.servidor.juego.Level;
-import org.servidor.servidor.juego.Liana;
-import org.servidor.servidor.juego.Segmento;
+import org.servidor.servidor.juego.LianaInfo;
+import org.servidor.servidor.juego.LianasConfig;
 
 /**
  * Estrategia de movimiento del cocodrilo rojo.
  * Calcula los límites (minY/maxY) del segmento actual y mueve al rojo,
  * invirtiendo la dirección al tocar un extremo para “rebotar” dentro del tramo.
  */
-public final class MovimientoRojo implements MovementStrategy {
+public class MovimientoRojo implements MovementStrategy {
+
     @Override
-    public void avanzar(Cocodrilo c, Level level, float dt) {
-        CocodriloRojo rojo = (CocodriloRojo) c;
+    public void avanzar(Cocodrilo c, LianasConfig lianasConfig, float dt) {
+        // 1. Obtener info de la liana donde está el cocodrilo
+        LianaInfo liana = lianasConfig.getById(c.getLianaId());
 
-        // Defensivo: rango de lianas
-        if (rojo.lianaId() < 0 || rojo.lianaId() >= level.lianas().size()) return;
+        // 3. Movimiento vertical entre top/bottom de esa liana
+        float v = c.effectiveSpeed(); // baseSpeed * speedFactor
 
-        Liana l = level.lianas().get(rojo.lianaId());
-        if (l.segments().isEmpty()) return; // sin tramos: nada que hacer
+        float y = c.getY();
+        CocodriloRojo rojo = (CocodriloRojo) c; // si necesitas Dir.UP/DOWN
 
-        int tile = level.map().tileSize();
+        switch (rojo.getDir()) {
+            case DOWN -> y += v * dt;
+            case UP   -> y -= v * dt;
+        }
 
-        // Hallar el segmento donde está (o el más cercano por debajo)
-        int row = Math.round(rojo.y() / tile);
-        Segmento seg = l.segments().stream()
-                .filter(s -> s.contieneFila(row))
-                .findFirst()
-                .orElseGet(() -> {
-                    Segmento best = null;
-                    for (Segmento s : l.segments()) {
-                        if (s.rowStart() <= row) {
-                            if (best == null || s.rowStart() > best.rowStart()) best = s;
-                        }
-                    }
-                    return best != null ? best : l.segments().get(0);
-                });
+        // 4. Rebotar entre los límites de la liana
+        if (y > liana.getBottomY()) {
+            y = liana.getBottomY();
+            rojo.setDir(CocodriloRojo.Dir.UP);
+        } else if (y < liana.getTopY()) {
+            y = liana.getTopY();
+            rojo.setDir(CocodriloRojo.Dir.DOWN);
+        }
 
-        float minY = seg.rowStart() * tile;
-        float maxY = seg.rowEnd()   * tile;
-
-        // Usa la speed actual del cocodrilo
-        float spd = rojo.effectiveSpeed(); // depende del factor global de velocidad
-        float dy  = spd * dt * (rojo.dir() == CocodriloRojo.Dir.UP ? +1f : -1f);
-        float ny  = rojo.y + dy;
-
-        // Rebote en extremos
-        if (ny > maxY) { ny = maxY; rojo.setDir(CocodriloRojo.Dir.DOWN); }
-        if (ny < minY) { ny = minY; rojo.setDir(CocodriloRojo.Dir.UP);   }
-
-        rojo.y = ny;
+        c.setY(y);
     }
 }

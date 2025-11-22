@@ -44,11 +44,11 @@ public class MessageSender {
         }
     }
 
-    public void sendConfirmation(ClienteActivo cliente, int puntaje, int vidas, int control) {
+    public void sendConfirmation(ClienteActivo cliente, int puntaje, int vidas, int control, String partida) {
         Socket socket = cliente.getSocket();
         String json = String.format(
-                "{\"type_message\":\"start\",\"score\":%d,\"lifes\":%d, \"control\":%d}",
-                puntaje, vidas, control
+                "{\"type_message\":\"start\",\"score\":%d,\"lifes\":%d, \"control\":%d, \"partida\":%s}",
+                puntaje, vidas, control, partida
         );
         try {
             BufferedWriter w = new BufferedWriter(

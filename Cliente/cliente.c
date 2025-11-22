@@ -7,12 +7,12 @@
 #include "cliente.h"
 #include "constants.h"
 #include "juego.h"
+#include "mensajes.h"
 #include <SDL3/SDL.h>
 #include "renderer.h"
 
 
-// Variable global para la partida (solución temporal)
-static char partida_actual[10] = "A"; // Por defecto "A"
+GameState g_state;
 
 //variable global para el renderer
 static Renderer* renderer_global = NULL;
@@ -114,17 +114,12 @@ static unsigned __stdcall recv_thread(void* p) {
 
         // 2) Resto de lógica que ya tenías
         if (strstr(line, "\"type_message\":\"start\"") != NULL) {
-            printf("Partida asignada: %s\n", partida_actual);
+            printf("Partida asignada!");
         }
 
         if (strstr(line, "\"type_message\":\"snapshot\"") != NULL) {
             printf(" Snapshot detectado\n");
-            if (renderer_global != NULL) {
-                printf(" Llamando a renderer_update_state...\n");
-                renderer_update_state(renderer_global, line);
-            } else {
-                printf(" ERROR: renderer_global es NULL - no se puede actualizar estado\n");
-            }
+            parse_snapshot(&g_state, line);
         }
 
         fflush(stdout);
@@ -133,11 +128,6 @@ static unsigned __stdcall recv_thread(void* p) {
     return 0;
 }
 
-
-// Función para obtener la partida actual (para uso en juego.c)
-const char* get_partida_actual() {
-    return partida_actual;
-}
 
 int leer_mensaje_servidor(SOCKET sock, char* buffer, size_t cap) {
     int n = recv_line(sock, buffer, (int)cap);
@@ -177,7 +167,7 @@ int main(void){
     }
 
     // Renderer global para snapshots
-    renderer_global = &juego.renderer;
+    renderer_global = juego.renderer;
     printf(" Renderer global configurado: %p\n", (void*)renderer_global);
 
     int programa_corriendo = 1;
@@ -254,21 +244,8 @@ int main(void){
             }
 
             // Armar el estado inicial del juego
-            GameState state;
             // si ya tienes un parseo de start, úsalo aquí:
-            // parse_start_message(line, &state);
-            // por ahora, algo básico:
-            state.vidas = 3;
-            state.score = 0;
-            state.speed = 1.0f;
-            state.jr_x = JR_START_X;
-            state.jr_y = JR_START_Y;
-            state.jr_mode   = JR_MODE_GROUND;
-            state.jr_facing = JR_FACE_RIGHT;
-            state.jr_vx = 0;
-            state.jr_vy = 0;
-            state.vine_idx = -1;
-            state.on_ground = 1;
+            parse_start_message(line, &g_state);
 
             // Ya arrancó la partida -> ahora sí hilo receptor
             RecvCtx ctx = { .sock = sock, .running = 1 };
@@ -280,7 +257,7 @@ int main(void){
                 continue;
             }
 
-            game_loop_jugador(&juego, sock, &state);
+            game_loop_jugador(&juego, sock, &g_state);
 
             // Cerrar bien la red
             net_send_line(sock, "{\"type_message\":\"salir\"}");

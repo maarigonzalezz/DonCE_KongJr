@@ -5,17 +5,13 @@ package org.servidor.servidor.juego.reglas;
  * score, vidas y speedFactor son la “fuente de verdad” para Sala y GameLoop.
  */
 public final class GameState {
-    public enum Fase { WAITING, RUNNING, VICTORY_RESET, GAME_OVER }
-
     private int score = 0;
     private int vidas = 2;          // <-- inicia en 2 para igualar la Sala actual
-    private float speedFactor = 1.0f;
-    private Fase fase = Fase.RUNNING;
-
+    private float speedFactor = 4.0f;
     public int score() { return score; }
     public int vidas() { return vidas; }
     public float speedFactor() { return speedFactor; }
-    public Fase fase() { return fase; }
+
 
     public void addScore(int pts) { score += pts; }
 
@@ -26,16 +22,13 @@ public final class GameState {
 
     public void victoryBoost(float factor) {
         speedFactor *= factor;
-        fase = Fase.VICTORY_RESET;
     }
 
-    public void setFase(Fase f) { this.fase = f; }
 
     /** Reinicia marcadores sin recrear GameState (útil para “reiniciarSala”). */
     public void reset() {
         score = 0;
         vidas = 2;
         speedFactor = 1.0f;
-        fase = Fase.RUNNING;
     }
 }

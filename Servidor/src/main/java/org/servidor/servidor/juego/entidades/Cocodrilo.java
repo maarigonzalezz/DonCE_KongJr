@@ -1,6 +1,6 @@
 package org.servidor.servidor.juego.entidades;
 
-import org.servidor.servidor.juego.Level;
+import org.servidor.servidor.juego.LianasConfig;
 
 /**
  * Base abstracta para cocodrilos.
@@ -15,41 +15,40 @@ import org.servidor.servidor.juego.Level;
 
 
 public abstract class Cocodrilo extends Entity {
-    protected final int lianaId;
-
-    //modelo de velocidad
-    protected float baseSpeed;          // velocidad base (px/s)
-    private float speedFactor = 1.0f;   // factor inyectado por GameLoop
-
+    protected float baseSpeed;
+    protected float speedFactor = 1.0f;
     protected MovementStrategy estrategia;
 
-    protected Cocodrilo(int lianaId, float y, float baseSpeed, BoundingBox bbox) {
-        super(0, y, bbox);
-        this.lianaId = lianaId;
+    public Cocodrilo(int lianaId, float baseSpeed) {
+        super(lianaId);
         this.baseSpeed = baseSpeed;
     }
 
-    public int lianaId() { return lianaId; }
+    public void setSpeedFactor(float sf) {
+        this.speedFactor = sf;
+    }
 
-    // Setter para que el GameLoop inyecte el factor global
-    public void setSpeedFactor(float f) { this.speedFactor = f; }
+    public float effectiveSpeed() {
+        return baseSpeed * speedFactor;
+    }
 
-    // Velocidad efectiva = baseSpeed * factor actual
-    public float effectiveSpeed() { return baseSpeed * speedFactor; }
+    public int getLianaId() { return lianaId; }
+    public float getY() { return y; }
+    public void setY(float y) { this.y = y; }
 
-    // (Opcional) getters/setters por si se quiere ajustar en runtime:
-    public float baseSpeed() { return baseSpeed; }
-    public void setBaseSpeed(float s) { this.baseSpeed = s; }
+    public float getX() {
+        return x;
+    }
 
-    @Override
-    public void update(Level level, float dt) {
+    public float getBaseSpeed() {
+        return baseSpeed;
+    }
+
+    public void update(LianasConfig lianasConfig, float dt) {
         if (estrategia == null) return;
-        if (lianaId < 0 || lianaId >= level.lianas().size()) return;
+        if (lianaId < 0 || lianaId >= lianasConfig.count()) return;
 
-        // Alinear X al eje de la liana
-        this.x = level.lianas().get(lianaId).x();
-
-        // Delegar movimiento específico
-        estrategia.avanzar(this, level, dt);
+        // La estrategia se encarga de usar la info de la liana
+        estrategia.avanzar(this, lianasConfig, dt);
     }
 }

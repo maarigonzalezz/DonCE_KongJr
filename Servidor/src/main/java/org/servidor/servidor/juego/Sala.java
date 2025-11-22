@@ -1,5 +1,8 @@
 package org.servidor.servidor.juego;
 
+import org.servidor.servidor.juego.entidades.CocodriloAzul;
+import org.servidor.servidor.juego.entidades.CocodriloRojo;
+import org.servidor.servidor.juego.entidades.Fruta;
 import org.servidor.servidor.mensajes.MessageSender;
 import org.servidor.servidor.socket.ClienteActivo;
 
@@ -8,10 +11,6 @@ import org.servidor.servidor.juego.reglas.GameState;
 import org.servidor.servidor.juego.reglas.Snapshot;
 
 import org.servidor.servidor.juego.entidades.Entity;
-import org.servidor.servidor.juego.entidades.DKJr;
-import org.servidor.servidor.juego.entidades.CocodriloRojo;
-import org.servidor.servidor.juego.entidades.CocodriloAzul;
-import org.servidor.servidor.juego.entidades.Fruta;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,14 +29,16 @@ public class Sala {
     private int observadores = 0;
 
     public final List<ClienteActivo> clientes = new ArrayList<>(); // conectados
+    public final List<ClienteActivo> observers = new ArrayList<>(); // conectados
     private final MessageSender messageSender;
 
     // --- Juego
-    private Level level;
     private GameState gameState;
     private List<Entity> entities;
+
     private GameLoop loop;
     private ScheduledExecutorService exec;
+    private int tickCounter = 0; // para snapshots
 
     // --- Constructor principal ---
     public Sala(String partida) {
@@ -64,38 +65,99 @@ public class Sala {
         int control;
         if ("jugador".equalsIgnoreCase(tipo)) {
             salaActiva = true;
-            startLoopIfNeeded();
             control = 1;
+            startLoopIfNeeded();
         } else {
             observadores++;
             control = 0;
+            observers.add(cliente);
         }
         clientes.add(cliente);
 
         // Confirma con score/vidas desde GameState
-        messageSender.sendConfirmation(cliente, gameState.score(), gameState.vidas(), control);
+        // aqui se deben de mandar las entidades también
+        messageSender.sendConfirmation(cliente, gameState.score(), gameState.vidas(), control, partida);
         System.out.println("cliente añadido correctamente");
     }
 
-    /** Mae en esta parte era que simulaba , ahora solo cuando el cliente mueve las teclas  */
+    // Mae en esta parte era que simulaba , ahora solo cuando el cliente mueve las teclas
+    /** Arranca el game loop del servidor si aún no está corriendo. */
     private synchronized void startLoopIfNeeded() {
-        if (loop != null) return;
+        // Si ya hay un loop activo, no hacemos nada
+        if (exec != null) {
+            return;
+        }
 
-        level = new Level();
-        entities = new ArrayList<>();
+        // Asegurarse de que haya listas inicializadas
+        if (entities == null) {
+            entities = new ArrayList<>();
+        }
 
-        // Solo el jugador
-        int t = level.map().tileSize();
-        entities.add(new DKJr(t * 7.5f, t * 2.0f));
+        // Crear el GameLoop del servidor (solo lógica de cocodrilos/frutas)
+        loop = new GameLoop(entities, gameState);
+        // crear frutas y enemigos iniciales
+        loop.startEntities();
 
-        loop = new GameLoop(level, entities, gameState);
+        // Crear un executor de un solo hilo para esta sala
+        exec = Executors.newSingleThreadScheduledExecutor();
 
+        // dt en segundos (~30 FPS)
+        final float DT = 1f / 30f;
 
-        // EL JUEGO SOLO AVANZARÁ CUANDO LLEGUEN INPUTS
-        System.out.println("🎮 Juego listo - esperando inputs del jugador");
+        // Programar la tarea periódica
+        exec.scheduleAtFixedRate(() -> {
+            try {
+                // 1) avanzar la simulación del servidor
+                loop.tick(DT);
+
+                // 2) aumentar contador de tick para el Snapshot
+                tickCounter++;
+
+                // 3) construir snapshot y mandarlo a todos los clientes
+                Snapshot s = buildSnapshot();
+                broadcastSnapshot(s);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }, 0, 33, TimeUnit.MILLISECONDS); // ~30 veces por segundo
+
+        System.out.println("Game loop de la sala " + partida + " iniciado.");
     }
 
-    /** Reinicia sala (sesión y simulación). */
+    // ------------ Snapshots ------------
+
+    private Snapshot buildSnapshot() {
+        Snapshot s = new Snapshot();
+        s.tick = tickCounter;
+        s.score = gameState.score();
+        s.vidas = gameState.vidas();
+        s.speedFactor = gameState.speedFactor();
+
+        if (entities != null) {
+            for (Entity e : entities) {
+                Snapshot.EntityState entityState = new Snapshot.EntityState();
+                entityState.id = e.getEntityId().toString();
+                entityState.x = e.x(); entityState.y = e.y();
+
+                if (e instanceof CocodriloRojo) entityState.tipo = "CocodriloRojo";
+                else if (e instanceof CocodriloAzul) entityState.tipo = "CocodriloAzul";
+                else if (e instanceof Fruta) entityState.tipo = "Fruta";
+                else entityState.tipo = e.getClass().getSimpleName();
+
+                s.entidades.add(entityState);
+            }
+        }
+        return s;
+    }
+
+    private void broadcastSnapshot(Snapshot s) {
+        for (ClienteActivo c : clientes) {
+            messageSender.sendSnapshot(c, s);
+        }
+    }
+
+    /** Reinicia sala (sesión y simulación).
     public synchronized void reiniciarSala() {
         salaActiva = false;
         clientes.clear();
@@ -109,43 +171,8 @@ public class Sala {
         if (gameState != null) gameState.reset(); // score=0, vidas=2, speedFactor=1.0, fase=RUNNING
     }
 
-    // ------------ Snapshots ------------
-    private int tickCounter = 0; // para snapshots
-
-    private Snapshot buildSnapshot() {
-        Snapshot s = new Snapshot();
-        s.tick = tickCounter;
-        s.score = gameState.score();
-        s.vidas = gameState.vidas();
-        s.speedFactor = gameState.speedFactor();
-
-        if (entities != null) {
-            for (Entity e : entities) {
-                Snapshot.EntityState es = new Snapshot.EntityState();
-                es.id = e.id.toString();
-                es.x = e.x(); es.y = e.y();
-                es.w = e.bbox().w; es.h = e.bbox().h;
-
-                if (e instanceof DKJr) es.tipo = "DKJr";
-                else if (e instanceof CocodriloRojo) es.tipo = "CocodriloRojo";
-                else if (e instanceof CocodriloAzul) es.tipo = "CocodriloAzul";
-                else if (e instanceof Fruta) es.tipo = "Fruta";
-                else es.tipo = e.getClass().getSimpleName();
-
-                s.entidades.add(es);
-            }
-        }
-        return s;
-    }
-
-    private void broadcastSnapshot(Snapshot s) {
-        for (ClienteActivo c : clientes) {
-            messageSender.sendSnapshot(c, s);
-        }
-    }
-
     // ------------ Inputs del cliente ------------
-    /** Recibe acciones del cliente y las aplica al primer DKJr hallado. */
+    /** Recibe acciones del cliente y las aplica al primer DKJr hallado.
     public void applyInput(String accion) {
         if (entities == null) return;
 
@@ -166,7 +193,7 @@ public class Sala {
             loop.tick(1f/30f); // Un frame de simulación
             broadcastSnapshot(buildSnapshot());
         }
-    }
+    }*/
 
     /** Identificador de esta sala (para socket). */
     public String getPartida() { return partida; }

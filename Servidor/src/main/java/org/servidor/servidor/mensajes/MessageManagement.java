@@ -122,7 +122,7 @@ public class MessageManagement {
                 return;
             }
 
-            sala.applyInput(action);
+            // sala.applyInput(action);
         } catch (Exception e) {
             System.err.println("Error manejando input: " + e.getMessage());
         }

@@ -1,11 +1,9 @@
 package org.servidor.servidor.juego.entidades;
 
-import org.servidor.servidor.juego.Level;
-
 // Esta vara es nada mas para probar las entidades
 
 public final class EntitiesSmoke {
-    public static void main(String[] args) throws InterruptedException {
+    /*public static void main(String[] args) throws InterruptedException {
         Level lvl = new Level();
         CocodriloRojo  rojo = new CocodriloRojo(2, 16*12,  60f);
         CocodriloAzul  azul = new CocodriloAzul(0, 16*10,  80f);
@@ -24,5 +22,5 @@ public final class EntitiesSmoke {
             Thread.sleep(10);
         }
         System.out.println("Entities smoke OK.");
-    }
+    }*/
 }

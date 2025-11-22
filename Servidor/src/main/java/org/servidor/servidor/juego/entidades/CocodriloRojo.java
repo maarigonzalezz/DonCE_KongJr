@@ -9,14 +9,18 @@ package org.servidor.servidor.juego.entidades;
 
 public final class CocodriloRojo extends Cocodrilo {
     public enum Dir { UP, DOWN }
-    Dir dir = Dir.UP;
+    private Dir dir = Dir.DOWN;
 
-    public CocodriloRojo(int lianaId, float yInicial, float speed) {
-        super(lianaId, yInicial, speed, new BoundingBox(10, 10));
+    public CocodriloRojo(int lianaId, float speed) {
+        super(lianaId, speed);
         this.estrategia = new MovimientoRojo();
     }
 
-    // Accesor para estrategia
-    Dir dir() { return dir; }
-    void setDir(Dir d) { dir = d; }
+    public Dir getDir() { return dir; }
+    public void setDir(Dir d) { dir = d; }
+
+    @Override
+    public int getLianaId() {
+        return super.getLianaId();
+    }
 }

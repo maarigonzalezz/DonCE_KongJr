@@ -1,30 +1,59 @@
 package org.servidor.servidor.juego.entidades;
 
-import org.servidor.servidor.juego.Level;
 
+import org.servidor.servidor.juego.LianaInfo;
+import org.servidor.servidor.juego.LianasConfig;
 
 /**
- * Objeto de puntuación estático asociado a una liana y una altura.
- * - lianaId, y, puntos.
- * En cada tick solo alinea su x al eje de la liana. Se elimina al ser recogida.
+ * Fruta estática ligada a una liana.
+ *
+ * - lianaId: en qué liana vive.
+ * - alturaPct: 0–100, donde:
+ *      0  => bottomY de la liana
+ *      100 => topY de la liana
+ *
+ * El servidor solo necesita la posición lógica (x, y) y los puntos;
+ * el cliente C dibuja y maneja tamaños.
  */
-
-
 public final class Fruta extends Entity {
-    private final int lianaId;
-    private final int puntos;
 
-    public Fruta(int lianaId, float y, int puntos) {
-        super(0, y, new BoundingBox(8, 8));
-        this.lianaId = lianaId;
+    private final int puntos;
+    private final float alturaPct;  // 0 a 100
+
+    public Fruta(int lianaId, int puntos, float alturaPct) {
+        super(lianaId);
         this.puntos = puntos;
+        this.alturaPct = alturaPct;
     }
 
-    public int lianaId() { return lianaId; }
-    public int puntos() { return puntos; }
+    public int getPuntos() {
+        return puntos;
+    }
+
+    public float getAlturaPct() {
+        return alturaPct;
+    }
 
     @Override
-    public void update(Level level, float dt) {
-        this.x = level.lianas().get(lianaId).x(); // estática, solo alinea X
+    public void update(LianasConfig lianasConfig, float dt) {
+        // La fruta no se mueve con el tiempo, pero en cada tick
+        // nos aseguramos de que su x/y estén sincronizados con la liana.
+        LianaInfo liana = lianasConfig.getById(lianaId);
+        if (liana == null) {
+            return; // defensivo
+        }
+
+        // Posición horizontal: centro de la liana
+        this.x = liana.getX() + 5;
+
+        // Posición vertical según porcentaje
+        float top = liana.getTopY();
+        float bottom = liana.getBottomY();
+        float diff = bottom - top;          // altura total de la liana
+
+        float ratio = alturaPct / 100.0f;   // 0.0 .. 1.0
+
+        // 0% -> bottom, 100% -> top
+        this.y = bottom - diff * ratio;
     }
 }

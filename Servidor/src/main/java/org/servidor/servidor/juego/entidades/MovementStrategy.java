@@ -1,7 +1,7 @@
 package org.servidor.servidor.juego.entidades;
 
-import org.servidor.servidor.juego.Level;
+import org.servidor.servidor.juego.LianasConfig;
 
 public interface MovementStrategy {
-    void avanzar(Cocodrilo c, Level level, float dt);
+    void avanzar(Cocodrilo c, LianasConfig lianasConfig, float dt);
 }

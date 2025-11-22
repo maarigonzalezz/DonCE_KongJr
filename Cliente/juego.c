@@ -3,10 +3,12 @@
 #include <stdio.h>
 #include <math.h>
 #include <SDL3/SDL.h>
+#include "mensajes.h"
 
 // Helpers simples para botón
 static SDL_FRect btn1 = { BTN1_X, BTN1_Y, BTN1_W, BTN1_H };   // Botón "1 - Jugador"
 static SDL_FRect btn2 = { BTN2_X, BTN2_Y, BTN2_W, BTN2_H };   // Botón "2 - Espectador"
+
 
 bool juego_init(Juego* j, const char* title, int w, int h){
     // Éxito: >= 0 ; Falla: < 0
@@ -35,7 +37,7 @@ void juego_shutdown(Juego* j){
     SDL_Quit();
 }
 
-// Dibuja el menú
+// ---------------------------------- MENU PRINCIPAL ---------------------------------
 static void draw_menu(Juego* j){
     SDL_SetRenderDrawColor((SDL_Renderer*)j->renderer, 20, 24, 28, 255);
     SDL_RenderClear((SDL_Renderer*)j->renderer);
@@ -87,6 +89,7 @@ MenuOpcion juego_menu(Juego* j){
     return opcion;
 }
 
+// ----------------------------------- MENU SECUNDARIO ESPECTADOR ----------------------------------------------
 // Botones para el menú "which" (selección de sala a observar)
 static SDL_FRect btnA_rect = { WHICH_BTN_A_X, WHICH_BTN_A_Y, WHICH_BTN_A_W, WHICH_BTN_A_H };
 static SDL_FRect btnB_rect = { WHICH_BTN_B_X, WHICH_BTN_B_Y, WHICH_BTN_B_W, WHICH_BTN_B_H };
@@ -163,6 +166,9 @@ WhichOpcion juego_menu_which(Juego* j, int tieneA, int tieneB) {
     return opcion;
 }
 
+
+// ------------------------------ RENDERIZADOR DEL JUEGO -----------------------------------------
+// Array de lianas que son FIJAS a lo que nos piden en el juego clasico
 static const Liana lianas[NUM_LIANAS] = {
     { LIANA1_X,  LIANA1_TOP_Y, LIANA1_BOT_Y },
     { LIANA2_X,  LIANA1_TOP_Y, LIANA2_BOT_Y }, // comparte TOP con liana1
@@ -269,6 +275,36 @@ void render_scene(Juego* j, const GameState* st, int es_jugador) {
         SDL_RenderFillRect(r, &L);
     }
 
+    // --- Dibujar frutas ---
+    SDL_SetRenderDrawColor(r, 255, 215, 0, 255); // amarillo-ish
+    for (int i = 0; i < st->num_frutas; ++i) {
+        if (!st->frutas[i].activa) continue;
+        SDL_FRect fr = {
+            st->frutas[i].x,
+            st->frutas[i].y,
+            20, 20  // tamaño aproximado, luego lo ajustas al sprite real
+        };
+        SDL_RenderFillRect(r, &fr);
+    }
+
+    // --- Dibujar cocodrilos ---
+    for (int i = 0; i < st->num_cocodrilos; ++i) {
+        if (!st->cocodrilos[i].activo) continue;
+
+        if (st->cocodrilos[i].tipo == CROC_AZUL) {
+            SDL_SetRenderDrawColor(r, 0, 0, 255, 255);
+        } else {
+            SDL_SetRenderDrawColor(r, 255, 0, 0, 255);
+        }
+
+        SDL_FRect cr = {
+            st->cocodrilos[i].x,
+            st->cocodrilos[i].y,
+            30, 20  // tamaño aproximado
+        };
+        SDL_RenderFillRect(r, &cr);
+    }
+
     // --- Jr (jugador) ---
     SDL_FRect jr = {
         st->jr_x,
@@ -307,6 +343,22 @@ void game_loop_jugador(Juego* j, SOCKET sock, GameState* st) {
 
         // por ahora solo dibujamos el stage + Jr
         render_scene(j, st, /*es_jugador=*/1);
+
+        if (st->pending_death != DEATH_NONE)
+        {
+            enviar_muerte(sock, st->pending_death);
+
+            // --------------------------------- RESPAWN BASICO HASTA QUE SE MANEJEN LOS MENSAJES BIEN------------------------
+            // respawn básico mientras tanto:
+            st->jr_x = JR_START_X;
+            st->jr_y = JR_START_Y;
+            st->jr_vx = st->jr_vy = 0;
+            st->jr_mode = JR_MODE_GROUND;
+            st->vine_idx = -1;
+            st->on_ground = 1;
+
+            st->pending_death = DEATH_NONE;
+        }
 
         SDL_Delay(16);
     }
@@ -416,6 +468,13 @@ void actualizar_logica_jugador(GameState* st, float dt) {
                 enganchar_a_liana(st, idx);
             }
         }
+
+        float feet = st->jr_y + JR_HEIGHT;
+        if (feet >= WATER_Y && st->pending_death == DEATH_NONE) {
+            st->pending_death = DEATH_WATER;
+        }
+
+
 
     } else if (st->jr_mode == JR_MODE_VINE) {
         // --- Modo liana ---

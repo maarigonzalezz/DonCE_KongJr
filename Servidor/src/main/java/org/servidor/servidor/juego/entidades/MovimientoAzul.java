@@ -1,75 +1,87 @@
 package org.servidor.servidor.juego.entidades;
 
-import org.servidor.servidor.juego.Level;
-import org.servidor.servidor.juego.Liana;
-import org.servidor.servidor.juego.Segmento;
+import org.servidor.servidor.juego.LianasConfig;
+import org.servidor.servidor.juego.LianaInfo;
 
 /**
- * Estrategia del cocodrilo azul.
- * EN_LIANA: desciende por la liana hasta el límite inferior del segmento actual.
- * Al tocar el final del tramo: cambia a CAYENDO y aplica gravedad.
+ * Estrategia de movimiento para el cocodrilo azul.
  *
- * Mejoras:
- * - Epsilon relativo al tamaño del tile para evitar “temblores” en el borde.
- * - Búsqueda de segmento “seguro”: si no está justo dentro de uno, usa el
- *   tramo más cercano por debajo; si no hay, cae.
- * - Defensivos si la liana no tiene segmentos.
+ * EN_LIANA:
+ *  - Baja pegado a la liana hasta el bottomY de esa liana.
+ *  - Cuando llega al límite inferior, cambia a CAYENDO.
+ *
+ * CAYENDO:
+ *  - Aplica gravedad (vy y G) hasta que el GameLoop decida eliminarlo
+ *    (por ejemplo, cuando pasa cierto límite de Y).
  */
 public final class MovimientoAzul implements MovementStrategy {
+
     @Override
-    public void avanzar(Cocodrilo c, Level level, float dt) {
-        CocodriloAzul azul = (CocodriloAzul) c;
+    public void avanzar(Cocodrilo base, LianasConfig lianasConfig, float dt) {
+        // Esta estrategia sólo aplica a CocodriloAzul
+        if (!(base instanceof CocodriloAzul azul)) {
+            return;
+        }
 
-        // Defensivo: rango de lianas
-        if (azul.lianaId() < 0 || azul.lianaId() >= level.lianas().size()) {
-            // si la liana es inválida, que caiga
+        // Obtener info de la liana correspondiente
+        int lianaId = azul.getLianaId();
+        LianaInfo liana = lianasConfig.getById(lianaId);
+        if (liana == null) {
+            return; // defensivo
+        }
+
+        // (Opcional) Alinear X a la liana, si quieres que se pegue al centro:
+        // azul.setX(liana.getX());
+
+        // Decidir según el estado actual
+        switch (azul.getEstado()) {
+            case EN_LIANA -> actualizarEnLiana(azul, liana, dt);
+            case CAYENDO -> actualizarCayendo(azul, dt);
+        }
+    }
+
+    /**
+     * Fase EN_LIANA: baja a velocidad constante por la liana hasta bottomY.
+     */
+    private void actualizarEnLiana(CocodriloAzul azul, LianaInfo liana, float dt) {
+        // Usar la velocidad EFECTIVA (baseSpeed * speedFactor)
+        float v = azul.effectiveSpeed();   // <-- usa el factor global
+
+        float ny = azul.getY() + v * dt;
+
+        // Cuando llega al límite inferior, se suelta
+        if (ny >= liana.getBottomY()) {
+            ny = liana.getBottomY();
             azul.setEstado(CocodriloAzul.Estado.CAYENDO);
+            azul.setVy(0f); // arranca caída desde velocidad 0
         }
 
-        Liana l = level.lianas().get(azul.lianaId());
-        int tile = level.map().tileSize();
-        float eps = Math.max(0.1f, tile * 0.05f); // tolerancia 5% del tile
+        azul.setY(ny);
+    }
 
-        if (azul.estado() == CocodriloAzul.Estado.EN_LIANA) {
-            // --- localizar tramo “seguro” ---
-            int row = Math.round(azul.y() / tile);
-            Segmento seg = l.segments().stream()
-                    .filter(s -> s.contieneFila(row))
-                    .findFirst()
-                    .orElseGet(() -> {
-                        // Elegir el tramo con rowStart más alto que no supere 'row'
-                        Segmento best = null;
-                        for (Segmento s : l.segments()) {
-                            if (s.rowStart() <= row) {
-                                if (best == null || s.rowStart() > best.rowStart()) best = s;
-                            }
-                        }
-                        return best;
-                    });
+    /**
+     * Fase CAYENDO: caída libre con gravedad.
+     * Escalamos la gravedad con el mismo factor de velocidad
+     * para que al subir la dificultad caiga más rápido.
+     */
+    private void actualizarCayendo(CocodriloAzul azul, float dt) {
+        // Factor de velocidad global que le puso el GameLoop
+        float factor = azul.effectiveSpeed();  // getter en Cocodrilo
 
-            if (seg == null) {
-                // Sin tramos válidos: pasar a caída
-                azul.setEstado(CocodriloAzul.Estado.CAYENDO);
-                // No return: que procese la rama de CAYENDO abajo
-            } else {
-                float minY = seg.rowStart() * tile;
+        // Gravedad efectiva
+        float g = azul.gravedad() * factor;
 
-                // Desciende
-                float ny = azul.y - azul.effectiveSpeed() * dt;
-                if (ny < minY) ny = minY;
+        float vy = azul.getVy() + g * dt;
+        float ny = azul.getY() + vy * dt;
 
-                // ¿tocó el final del tramo?
-                if (ny <= minY + eps) {
-                    azul.setEstado(CocodriloAzul.Estado.CAYENDO);
-                    azul.vy = 0;
-                }
-                azul.y = ny;
-                return;
-            }
-        }
+        azul.setVy(vy);
+        azul.setY(ny);
 
-        // --- CAYENDO: gravedad ---
-        azul.vy += azul.gravedad() * dt;
-        azul.y -= azul.vy * dt; // hacia abajo
+        // Aquí podrías marcarlo para eliminar si cae demasiado
+        // (el borrado real lo hace el GameLoop):
+        //
+        // if (ny > algunLimite) {
+        //     azul.setMuerto(true);
+        // }
     }
 }

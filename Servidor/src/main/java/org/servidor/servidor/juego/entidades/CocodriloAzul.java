@@ -9,17 +9,56 @@ package org.servidor.servidor.juego.entidades;
 
 
 public final class CocodriloAzul extends Cocodrilo {
-    public enum Estado { EN_LIANA, CAYENDO }
-    private Estado estado = Estado.EN_LIANA;
-    private static final float G = 900f / 60f; // gravedad aprox. (px/s^2) adaptada
 
-    public CocodriloAzul(int lianaId, float yInicial, float speed) {
-        super(lianaId, yInicial, speed, new BoundingBox(10, 10));
+    public enum Estado { EN_LIANA, CAYENDO }
+
+    // Estado actual del cocodrilo
+    private Estado estado = Estado.EN_LIANA;
+
+    // Velocidad vertical sólo mientras está en caída libre (CAYENDO)
+    private float vy = 0f;
+
+    // Gravedad en px/s^2 (ajusta al gusto)
+    private static final float G = 900f;
+
+    public CocodriloAzul(int lianaId, float speed) {
+        super(lianaId, speed);
         this.estrategia = new MovimientoAzul();
     }
 
-   public Estado estado() { return estado; }
-    void setEstado(Estado e) { estado = e; }
-    float gravedad() { return G; }
+    // --- Accesores usados por la estrategia y el snapshot ---
+
+    public Estado getEstado() {
+        return estado;
+    }
+
+    public void setEstado(Estado estado) {
+        this.estado = estado;
+    }
+
+    /**
+     * Velocidad vertical durante la fase CAYENDO.
+     */
+    public float getVy() {
+        return vy;
+    }
+
+    public void setVy(float vy) {
+        this.vy = vy;
+    }
+
+    /**
+     * Aceleración de la gravedad usada en MovimientoAzul.
+     */
+    public float gravedad() {
+        return G;
+    }
+
+    @Override
+    public int getLianaId() {
+        return super.getLianaId();
+    }
+
+
 }
 

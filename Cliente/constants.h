@@ -204,7 +204,8 @@
 #define JR_JUMP_VY   -320.0f   // velocidad inicial del salto (negativa = hacia arriba)
 #define JR_GRAVITY    900.0f   // gravedad
 
-
+#define MAX_FRUTAS      15
+#define MAX_COCODRILOS  15
 
 //#define _WIN32_WINNT 0x0601
 #define SDL_MAIN_HANDLED
