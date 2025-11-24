@@ -20,6 +20,26 @@ void enviar_muerte(SOCKET sock, DeathReason r) {
     net_send_line(sock, json);
 }
 
+void enviar_fruta_d(SOCKET sock, const char* fruit_id) {
+    if (!fruit_id || fruit_id[0] == '\0') {
+        return; // nada que mandar
+    }
+
+    char json[256];
+    snprintf(json, sizeof json,
+             "{\"type_message\":\"fruit_destroyed\",\"id\":\"%s\"}",
+             fruit_id);
+
+    net_send_line(sock, json);
+    printf(">> Enviando fruit_destroyed id=%s\n", fruit_id);
+}
+
+void enviar_win(SOCKET sock) {
+    const char* json = "{\"type_message\":\"win\"}";
+    net_send_line(sock, json);
+    printf(">> Enviando WIN al servidor\n");
+}
+
 
 // RECIBIR MENSAJES
 void parse_start_message(const char* line, GameState* state)
@@ -79,6 +99,11 @@ void parse_start_message(const char* line, GameState* state)
         // guardar en GameState
         strncpy(state->partida, buf, sizeof(state->partida) - 1);
         state->partida[sizeof(state->partida) - 1] = '\0';
+        state->pending_death = DEATH_NONE;
+        state->pending_fruit = 0;
+        state->pending_fruit_id[0] = '\0';
+        state->last_fruit_destroyed_id[0] = '\0';
+        state->pending_win = 0;
     }
 }
 

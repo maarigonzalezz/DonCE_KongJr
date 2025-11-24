@@ -37,7 +37,8 @@ typedef enum {
 typedef enum {
     DEATH_NONE = 0,
     DEATH_WATER,
-    DEATH_CROC
+    DEATH_CROC,
+    DEATH_MARIO
 } DeathReason;
 
 // Facing del mono
@@ -110,8 +111,40 @@ typedef struct {
     Cocodrilo cocodrilos[MAX_COCODRILOS];
     int       num_cocodrilos;
 
+    int  pending_fruit;              // 0 = nada, 1 = hay fruta por reportar
+    char pending_fruit_id[64];       // id de la fruta que tocamos
+    char last_fruit_destroyed_id[64];
 
+    int  pending_win;
 } GameState;
+
+// ----------------- MINI FUENTE PARA HUD -----------------
+
+typedef struct {
+    char ch;
+    const char* pattern; // 3 columnas x 5 filas = 15 chars '0' o '1'
+} Glyph;
+
+static const Glyph g_glyphs[] = {
+    // Dígitos
+    { '0', "111" "101" "101" "101" "111" },
+    { '1', "001" "001" "001" "001" "001" },
+    { '2', "111" "001" "111" "100" "111" },
+    { '3', "111" "001" "111" "001" "111" },
+    { '4', "101" "101" "111" "001" "001" },
+    { '5', "111" "100" "111" "001" "111" },
+    { '6', "111" "100" "111" "101" "111" },
+    { '7', "111" "001" "001" "001" "001" },
+    { '8', "111" "101" "111" "101" "111" },
+    { '9', "111" "101" "111" "001" "111" },
+
+    // Letras que vamos a usar: S, L, P, A, B
+    { 'S', "111" "100" "111" "001" "111" },
+    { 'L', "100" "100" "100" "100" "111" },
+    { 'P', "111" "101" "111" "100" "100" },
+    { 'A', "111" "101" "111" "101" "101" },
+    { 'B', "110" "101" "110" "101" "110" },
+};
 
 
 // ----------------------------- FUNCIONES Y DEMAS --------------------------------

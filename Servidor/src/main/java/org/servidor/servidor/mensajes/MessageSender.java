@@ -22,28 +22,6 @@ public class MessageSender {
      */
     public MessageSender() {}
 
-    /*private void sendMessageToClient(ClientInfo client, String message) {
-        try {
-            PrintWriter out = new PrintWriter(client.getSocket().getOutputStream(), true); // Prepara el flujo de salida
-            out.println(message); // Envía el mensaje
-            //System.out.println("Mensaje enviado al cliente " + client.getClientId() + ": " + message); // Registra el mensaje enviado
-        } catch (IOException e) {
-            System.err.println("Error al enviar mensaje al cliente " + client.getClientId() + ": " + e.getMessage()); // Registra el error durante el envío
-        }
-    }*/
-
-
-    private String createJson(Object data) {
-        try {
-            // Convierte el objeto a JSON usando el ObjectMapper
-            return objectMapper.writeValueAsString(data);
-        } catch (JsonProcessingException e) {
-            // Imprime el stack trace del error y retorna null en caso de fallo
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     public void sendConfirmation(ClienteActivo cliente, int puntaje, int vidas, int control, String partida) {
         Socket socket = cliente.getSocket();
         String json = String.format(

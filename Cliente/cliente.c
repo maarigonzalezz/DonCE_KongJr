@@ -99,7 +99,7 @@ static unsigned __stdcall recv_thread(void* p) {
             break;
         }
 
-        printf(" Mensaje recibido (%d bytes): %s\n", n, line);
+        // printf(" Mensaje recibido (%d bytes): %s\n", n, line);
 
         // 1) Caso especial: reach / NoSpace -> cerrar cliente
         if (strstr(line, "\"type_message\":\"reach\"") &&
@@ -118,7 +118,7 @@ static unsigned __stdcall recv_thread(void* p) {
         }
 
         if (strstr(line, "\"type_message\":\"snapshot\"") != NULL) {
-            printf(" Snapshot detectado\n");
+            // printf(" Snapshot detectado\n");
             parse_snapshot(&g_state, line);
         }
 

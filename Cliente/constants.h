@@ -207,6 +207,11 @@
 #define MAX_FRUTAS      15
 #define MAX_COCODRILOS  15
 
+#define FRUIT_S   20.0f
+
+#define CROC_W 30.0f
+#define CROC_H 20.0f
+
 //#define _WIN32_WINNT 0x0601
 #define SDL_MAIN_HANDLED
 

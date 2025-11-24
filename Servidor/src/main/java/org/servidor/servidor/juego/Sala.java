@@ -27,7 +27,6 @@ public class Sala {
     private final String partida;
     private boolean salaActiva = false;
     private int observadores = 0;
-
     public final List<ClienteActivo> clientes = new ArrayList<>(); // conectados
     public final List<ClienteActivo> observers = new ArrayList<>(); // conectados
     private final MessageSender messageSender;
@@ -170,30 +169,6 @@ public class Sala {
 
         if (gameState != null) gameState.reset(); // score=0, vidas=2, speedFactor=1.0, fase=RUNNING
     }
-
-    // ------------ Inputs del cliente ------------
-    /** Recibe acciones del cliente y las aplica al primer DKJr hallado.
-    public void applyInput(String accion) {
-        if (entities == null) return;
-
-        DKJr dk = null;
-        for (Entity e : entities) if (e instanceof DKJr) { dk = (DKJr) e; break; }
-        if (dk == null) return;
-
-        switch (accion.toLowerCase()) {
-            case "climb_up"   -> dk.climbUp(2.0f);
-            case "climb_down" -> dk.climbDown(2.0f);
-            case "release"    -> dk.release();
-            case "move_left"  -> dk.moveLeft();
-            case "move_right" -> dk.moveRight();
-        }
-
-        //  AVANZAR UN TICK DEL JUEGO DESPUÉS DE CADA INPUT
-        if (loop != null) {
-            loop.tick(1f/30f); // Un frame de simulación
-            broadcastSnapshot(buildSnapshot());
-        }
-    }*/
 
     /** Identificador de esta sala (para socket). */
     public String getPartida() { return partida; }

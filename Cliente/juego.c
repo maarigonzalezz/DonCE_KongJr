@@ -59,6 +59,15 @@ static int hit(SDL_FRect r, float x, float y){
     return (x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h);
 }
 
+static int rects_intersect(float ax, float ay, float aw, float ah,
+                           float bx, float by, float bw, float bh)
+{
+    return !(ax + aw <= bx ||
+             bx + bw <= ax ||
+             ay + ah <= by ||
+             by + bh <= ay);
+}
+
 // AHORA: el menú NO sabe de sockets, solo devuelve la opción escogida
 MenuOpcion juego_menu(Juego* j){
     int running = 1;
@@ -166,6 +175,52 @@ WhichOpcion juego_menu_which(Juego* j, int tieneA, int tieneB) {
     return opcion;
 }
 
+// ---------------------------- RENDXERIZAR NUMEROS Y LETRAS
+static const Glyph* find_glyph(char c) {
+    int n = (int)(sizeof(g_glyphs)/sizeof(g_glyphs[0]));
+    for (int i = 0; i < n; ++i) {
+        if (g_glyphs[i].ch == c) return &g_glyphs[i];
+    }
+    return NULL;
+}
+
+// Dibuja un carácter usando la mini fuente
+static void draw_char(SDL_Renderer* r, float x, float y, char c, float scale) {
+    const Glyph* g = find_glyph(c);
+    if (!g) return; // carácter no soportado
+
+    const char* p = g->pattern;
+    int cell_w = (int)(2 * scale);
+    int cell_h = (int)(2 * scale);
+
+    for (int row = 0; row < 5; ++row) {
+        for (int col = 0; col < 3; ++col) {
+            char bit = p[row*3 + col];
+            if (bit == '1') {
+                SDL_FRect rect = {
+                    x + col * (float)cell_w,
+                    y + row * (float)cell_h,
+                    (float)cell_w,
+                    (float)cell_h
+                };
+                SDL_RenderFillRect(r, &rect);
+            }
+        }
+    }
+}
+
+// Dibuja una cadena simple (caracteres soportados)
+static void draw_text(SDL_Renderer* r, float x, float y, const char* text, float scale) {
+    float advance = 3.0f * 2.0f * scale; // ancho básico del char
+    for (const char* p = text; *p; ++p) {
+        if (*p == ' ') {
+            x += advance;
+            continue;
+        }
+        draw_char(r, x, y, *p, scale);
+        x += advance;
+    }
+}
 
 // ------------------------------ RENDERIZADOR DEL JUEGO -----------------------------------------
 // Array de lianas que son FIJAS a lo que nos piden en el juego clasico
@@ -282,7 +337,7 @@ void render_scene(Juego* j, const GameState* st, int es_jugador) {
         SDL_FRect fr = {
             st->frutas[i].x,
             st->frutas[i].y,
-            20, 20  // tamaño aproximado, luego lo ajustas al sprite real
+            FRUIT_S, FRUIT_S
         };
         SDL_RenderFillRect(r, &fr);
     }
@@ -300,7 +355,7 @@ void render_scene(Juego* j, const GameState* st, int es_jugador) {
         SDL_FRect cr = {
             st->cocodrilos[i].x,
             st->cocodrilos[i].y,
-            30, 20  // tamaño aproximado
+            CROC_W, CROC_H  // tamaño aproximado
         };
         SDL_RenderFillRect(r, &cr);
     }
@@ -315,7 +370,30 @@ void render_scene(Juego* j, const GameState* st, int es_jugador) {
     SDL_SetRenderDrawColor(r, 40, 120, 220, 255); // azulito
     SDL_RenderFillRect(r, &jr);
 
-    // Aquí más adelante dibujas cocodrilos, frutas, HUD de vidas/score, etc.
+    // ================= HUD (score, vidas, partida) =================
+    // Fondo del HUD (barra superior)
+    SDL_FRect hud = { 0, 0, (float)WINDOW_WIDTH, 30.0f };
+    SDL_SetRenderDrawColor(r, 0, 0, 0, 200);  // negro semi opaco
+    SDL_RenderFillRect(r, &hud);
+
+    // Color texto HUD: blanco
+    SDL_SetRenderDrawColor(r, 255, 255, 255, 255);
+
+    char buf[64];
+    float scale = 2.0f;
+
+    // Score: "S" + número
+    snprintf(buf, sizeof(buf), "S%d", st->score);
+    draw_text(r, 10.0f, 8.0f, buf, scale);
+
+    // Vidas: "L" + número
+    snprintf(buf, sizeof(buf), "L%d", st->vidas);
+    draw_text(r, 80.0f, 8.0f, buf, scale);
+
+    // Partida: "P" + letra A/B (usamos solo el primer char de partida)
+    char letra = (st->partida[0] != '\0') ? st->partida[0] : 'A';
+    snprintf(buf, sizeof(buf), "P%c", letra);
+    draw_text(r, 140.0f, 8.0f, buf, scale);
 
     SDL_RenderPresent(r);
 }
@@ -358,6 +436,25 @@ void game_loop_jugador(Juego* j, SOCKET sock, GameState* st) {
             st->on_ground = 1;
 
             st->pending_death = DEATH_NONE;
+        }
+
+
+        if (st->pending_fruit) {
+            enviar_fruta_d(sock, st->pending_fruit_id);
+            st->pending_fruit = 0;
+            st->pending_fruit_id[0] = '\0';
+        }
+
+        if (st->pending_win) {
+            enviar_win(sock);
+            // respawn básico mientras tanto:
+            st->jr_x = JR_START_X;
+            st->jr_y = JR_START_Y;
+            st->jr_vx = st->jr_vy = 0;
+            st->jr_mode = JR_MODE_GROUND;
+            st->vine_idx = -1;
+            st->on_ground = 1;
+            st->pending_win = 0;
         }
 
         SDL_Delay(16);
@@ -469,12 +566,11 @@ void actualizar_logica_jugador(GameState* st, float dt) {
             }
         }
 
+        // 6) Muerte por agua
         float feet = st->jr_y + JR_HEIGHT;
         if (feet >= WATER_Y && st->pending_death == DEATH_NONE) {
             st->pending_death = DEATH_WATER;
         }
-
-
 
     } else if (st->jr_mode == JR_MODE_VINE) {
         // --- Modo liana ---
@@ -503,8 +599,7 @@ void actualizar_logica_jugador(GameState* st, float dt) {
             if (st->jr_y > maxY) st->jr_y = maxY;
         }
 
-        // 3) IMPORTANTE: también checar techo/paredes aquí
-        //    (para que al subir por la liana no se meta en la plataforma)
+        // 3) También checar plataformas (para techos, etc.)
         aplicar_colision_plataformas(st, old_x, old_y);
     }
 
@@ -513,7 +608,79 @@ void actualizar_logica_jugador(GameState* st, float dt) {
         st->jr_x = 0;
     if (st->jr_x + JR_WIDTH > WINDOW_WIDTH)
         st->jr_x = WINDOW_WIDTH - JR_WIDTH;
+
+    // --- Colisión con frutas ---
+    if (!st->pending_fruit) {  // solo si no hay una fruta pendiente de envío
+        for (int i = 0; i < st->num_frutas; ++i) {
+            Fruta* f = &st->frutas[i];
+            if (!f->activa) continue;
+
+            // Si ya reportamos esta fruta antes, la ignoramos
+            if (st->last_fruit_destroyed_id[0] != '\0' &&
+                strcmp(f->id, st->last_fruit_destroyed_id) == 0) {
+                continue;
+                }
+
+            if (rects_intersect(st->jr_x, st->jr_y, JR_WIDTH, JR_HEIGHT,
+                                f->x, f->y, FRUIT_S, FRUIT_S)) {
+
+                st->pending_fruit = 1;
+                strncpy(st->pending_fruit_id,
+                        f->id,
+                        sizeof(st->pending_fruit_id) - 1);
+                st->pending_fruit_id[sizeof(st->pending_fruit_id) - 1] = '\0';
+
+                // Recordar que esta fruta ya fue destruida
+                strncpy(st->last_fruit_destroyed_id,
+                        f->id,
+                        sizeof(st->last_fruit_destroyed_id) - 1);
+                st->last_fruit_destroyed_id[sizeof(st->last_fruit_destroyed_id) - 1] = '\0';
+
+                printf(">> Colisión con fruta id=%s\n", st->pending_fruit_id);
+                break;
+                                }
+        }
+    }
+
+    // --- Colisión con Cocodrilo = muerte ---
+    if (st->pending_death == DEATH_NONE) {  // no spamear si ya está muriendo
+        for (int i = 0; i < st->num_cocodrilos; ++i) {
+            Cocodrilo* c = &st->cocodrilos[i];
+            if (!c->activo) continue;
+
+            if (rects_intersect(st->jr_x, st->jr_y, JR_WIDTH, JR_HEIGHT,
+                                c->x, c->y, CROC_W, CROC_H)) {
+
+                st->pending_death = DEATH_CROC;
+                printf(">> Colisión con cocodrilo id=%s\n", c->id);
+                break; // con uno basta para morir
+            }
+        }
+    }
+
+    // --- Colisión con Mario = muerte ---
+    if (st->pending_death == DEATH_NONE) {
+        if (rects_intersect(st->jr_x, st->jr_y, JR_WIDTH, JR_HEIGHT,
+                            MARIO_X, MARIO_Y, MARIO_W, MARIO_H)) {
+
+            st->pending_death = DEATH_MARIO;
+            printf(">> Muerte por Mario\n");
+                            }
+    }
+
+    // --- Colisión con jaula de Donkey = victoria ---
+    if (!st->pending_win) {
+        if (rects_intersect(st->jr_x, st->jr_y, JR_WIDTH, JR_HEIGHT,
+                            DK_CAGE_X, DK_CAGE_Y, DK_CAGE_W, DK_CAGE_H)) {
+
+            st->pending_win = 1;
+            printf(">> Victoria: contacto con jaula de Donkey\n");
+                            }
+    }
+
+
 }
+
 
 static void liana_bounds(int idx, float* top, float* bottom) {
     const Liana* L = &lianas[idx];
