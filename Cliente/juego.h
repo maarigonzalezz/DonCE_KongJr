@@ -66,6 +66,9 @@ typedef struct {
     float bottom;
 } Liana;
 
+extern const Platform platforms[NUM_PLATFORMS];
+extern const Liana    lianas[NUM_LIANAS];
+
 typedef struct {
     char  id[64];   // UUID como string
     float x, y;

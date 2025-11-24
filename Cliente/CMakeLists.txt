@@ -17,6 +17,7 @@ add_executable(Cliente
         renderer.c
         mensajes.h
         mensajes.c
+        jugador.c
 )
 
 if (WIN32)
