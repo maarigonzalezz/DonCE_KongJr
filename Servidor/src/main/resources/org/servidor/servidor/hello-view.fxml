@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.image.*?>
 <?import java.lang.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
@@ -13,6 +14,25 @@
     <children>
         <ToggleButton fx:id="server_toggle" layoutX="44.0" layoutY="39.0" mnemonicParsing="false" onAction="#server_toggle" text="Servidor" />
 
-        <Label fx:id="confirmacion" layoutX="44.0" layoutY="77.0" prefHeight="31.0" prefWidth="92.0" />
+        <Label fx:id="confirmacion" layoutX="141.0" layoutY="39.0" prefHeight="31.0" prefWidth="520.0" />
+      <Slider fx:id="altura_slider" layoutX="957.0" layoutY="267.0" orientation="VERTICAL" prefHeight="341.0" prefWidth="24.0" />
+      <ListView fx:id="lista_A" layoutX="37.0" layoutY="95.0" prefHeight="527.0" prefWidth="300.0" />
+      <ImageView fx:id="imagen" fitHeight="255.0" fitWidth="326.0" layoutX="681.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../../../imagen_lianas.jpg" />
+         </image>
+      </ImageView>
+      <ListView fx:id="lista_B" layoutX="360.0" layoutY="95.0" prefHeight="527.0" prefWidth="300.0" />
+      <ChoiceBox fx:id="menu_liana_btn" layoutX="731.0" layoutY="298.0" prefHeight="31.0" prefWidth="198.0" />
+      <ChoiceBox fx:id="menu_entities" layoutX="731.0" layoutY="364.0" prefHeight="31.0" prefWidth="198.0" />
+      <Button fx:id="btn_crear" layoutX="759.0" layoutY="529.0" mnemonicParsing="false" onAction="#crearEntidad" prefHeight="31.0" prefWidth="142.0" text="Crear Entidad" />
+      <Button fx:id="btn_eliminar" layoutX="759.0" layoutY="577.0" mnemonicParsing="false" onAction="#eliminarFruta" prefHeight="31.0" prefWidth="142.0" text="Eliminar fruta" />
+      <ChoiceBox fx:id="menu_sala" layoutX="731.0" layoutY="424.0" prefHeight="31.0" prefWidth="198.0" />
+      <Label fx:id="lbl1" layoutX="787.0" layoutY="267.0" prefHeight="21.0" prefWidth="86.0" text="Elija la liana" />
+      <Label fx:id="lbl2" layoutX="779.0" layoutY="337.0" prefHeight="21.0" prefWidth="103.0" text="Elija la entidad" />
+      <Label fx:id="lbl3" layoutX="788.0" layoutY="403.0" prefHeight="21.0" prefWidth="86.0" text="Elija la sala" />
+      <Label fx:id="alt_lbl" layoutX="952.0" layoutY="560.0" />
+      <TextField fx:id="points_space" layoutX="737.0" layoutY="490.0" />
+      <Label fx:id="lbl31" layoutX="769.0" layoutY="461.0" prefHeight="21.0" prefWidth="123.0" text="Puntos para fruta" />
     </children>
 </Pane>

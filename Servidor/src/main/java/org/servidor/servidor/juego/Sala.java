@@ -5,6 +5,9 @@ import org.servidor.servidor.juego.entidades.CocodriloAzul;
 import org.servidor.servidor.juego.entidades.CocodriloRojo;
 import org.servidor.servidor.juego.entidades.Fruta;
 import org.servidor.servidor.mensajes.MessageSender;
+import org.servidor.servidor.patrones.DefaultEntityFactory;
+import org.servidor.servidor.patrones.EntityFactory;
+import org.servidor.servidor.patrones.EntityKind;
 import org.servidor.servidor.socket.ClienteActivo;
 
 import org.servidor.servidor.juego.reglas.GameLoop;
@@ -13,10 +16,7 @@ import org.servidor.servidor.juego.reglas.Snapshot;
 
 import org.servidor.servidor.juego.entidades.Entity;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.*;
 
 /**
@@ -33,6 +33,7 @@ public class Sala {
     public final List<ClienteActivo> clientes = new ArrayList<>(); // conectados
     public final List<ClienteActivo> observers = new ArrayList<>(); // conectados
     private final MessageSender messageSender;
+    private final EntityFactory entityFactory;
 
     // --- Juego
     private GameState gameState;
@@ -47,14 +48,9 @@ public class Sala {
         this.partida = partida;
         this.messageSender = new MessageSender();
         this.gameState = new GameState(); // vidas=2 por defecto
+        this.entityFactory = new DefaultEntityFactory();
     }
 
-    // --- Constructor alternativo (inyección de GameState) ---
-    public Sala(String partida, GameState injectedState) {
-        this.partida = partida;
-        this.messageSender = new MessageSender();
-        this.gameState = (injectedState != null) ? injectedState : new GameState();
-    }
 
     public boolean SalaOcupada() { return salaActiva; }
 
@@ -262,7 +258,7 @@ public class Sala {
 
         if (abandonoVoluntario) {
             // 1) Notificar a los observadores que la partida terminó
-            for (ClienteActivo c : clientes){
+            for (ClienteActivo c : observers){
                 messageSender.send_GameOver(c);
             }
 
@@ -271,5 +267,55 @@ public class Sala {
         }
     }
 
+    public List<Entity> getEntitiesSnapshot() {
+        synchronized (this) {
+            if (entities == null) {
+                // Aún no se inicializa la lista: devolvemos una lista vacía
+                return Collections.emptyList();
+            }
+            return new ArrayList<>(entities);
+        }
+    }
 
+
+    public synchronized void eliminarFrutaPorId(UUID entityId) {
+        if (entities == null) return;
+
+        Iterator<Entity> it = entities.iterator();
+        while (it.hasNext()) {
+            Entity e = it.next();
+            if (e instanceof Fruta && Objects.equals(e.getEntityId(), entityId)) {
+                Fruta f = (Fruta) e;
+                System.out.println("Eliminando fruta " + entityId + " (pts=" + f.getPuntos() + ") de sala " + partida);
+                it.remove();
+                break;
+            }
+        }
+    }
+
+    public synchronized void crearEntidadAdmin(String tipoStr, int lianaId, float alturaPct, int puntos) {
+        EntityKind kind = mapTipoToKind(tipoStr);
+        if (kind == null) {
+            System.out.println("Tipo de entidad desconocido: " + tipoStr);
+            return;
+        }
+
+        Entity nueva = entityFactory.createEntity(kind, lianaId, alturaPct, puntos);
+        if (nueva != null) {
+            entities.add(nueva);
+            System.out.printf("Creada entidad %s en sala %s (liana=%d, altura=%.1f)%n",
+                    kind, partida, lianaId, alturaPct);
+        }
+    }
+
+    private EntityKind mapTipoToKind(String tipoStr) {
+        if (tipoStr == null) return null;
+
+        return switch (tipoStr) {
+            case "Fruta" -> EntityKind.FRUTA;
+            case "Cocodrilo rojo" -> EntityKind.COCODRILO_ROJO;
+            case "Cocodrilo azul" -> EntityKind.COCODRILO_AZUL;
+            default -> null;
+        };
+    }
 }

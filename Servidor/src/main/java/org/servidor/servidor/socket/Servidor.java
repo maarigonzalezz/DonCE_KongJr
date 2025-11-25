@@ -114,4 +114,31 @@ public class Servidor {
             }
         }
     }
+
+    public Sala getSala(String partida) {
+        for (Sala s : Salas) {
+            if (Objects.equals(s.getPartida(), partida)) {
+                return s;
+            }
+        }
+        return null;
+    }
+
+    public void eliminarFruta(String partida, UUID entityId) {
+        Sala sala = getSala(partida);
+        if (sala == null) {
+            System.out.println("No se encontró sala " + partida + " para eliminar fruta");
+            return;
+        }
+        sala.eliminarFrutaPorId(entityId);
+    }
+
+    public void crearEntidadAdmin(String salaId, String tipoStr, int lianaId, float alturaPct, int puntos) {
+        Sala sala = getSala(salaId); // ya tenías algo así
+        if (sala == null) {
+            System.out.println("No se encontró sala " + salaId);
+            return;
+        }
+        sala.crearEntidadAdmin(tipoStr, lianaId, alturaPct, puntos);
+    }
 }
