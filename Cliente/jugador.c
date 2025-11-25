@@ -71,7 +71,6 @@ void game_loop_jugador(Juego* j, SOCKET sock, GameState* st) {
             juego_mostrar_game_over(j, st);
             // Salimos del loop de juego
             running = 0;
-
         }
 
         if (st->pending_win) {

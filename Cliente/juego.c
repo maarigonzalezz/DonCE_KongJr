@@ -200,13 +200,9 @@ void juego_mostrar_game_over(Juego* j, const GameState* st) {
             }
         }
 
-        // Dibujamos el juego "congelado" de fondo
-        render_scene(j, st, 1);
-
-        // Overlay oscuro
-        SDL_SetRenderDrawColor(r, 0, 0, 0, 180);
-        SDL_FRect overlay = { 0, 0, (float)WINDOW_WIDTH, (float)WINDOW_HEIGHT };
-        SDL_RenderFillRect(r, &overlay);
+        // Fondo negro
+        SDL_SetRenderDrawColor(r, 0, 0, 0, 255);
+        SDL_RenderClear(r);
 
         // Texto GAME OVER
         SDL_SetRenderDrawColor(r, 255, 0, 0, 255);
@@ -272,7 +268,7 @@ static void draw_char(SDL_Renderer* r, float x, float y, char c, float scale) {
 
 // Dibuja una cadena simple (caracteres soportados)
 static void draw_text(SDL_Renderer* r, float x, float y, const char* text, float scale) {
-    float advance = 3.0f * 2.0f * scale; // ancho básico del char
+    float advance = 4.0f * 2.0f * scale; // ancho básico del char
     for (const char* p = text; *p; ++p) {
         if (*p == ' ') {
             x += advance;
@@ -449,12 +445,12 @@ void render_scene(Juego* j, const GameState* st, int es_jugador) {
 
     // Vidas: "L" + número
     snprintf(buf, sizeof(buf), "L%d", st->vidas);
-    draw_text(r, 80.0f, 8.0f, buf, scale);
+    draw_text(r, 210.0f, 8.0f, buf, scale);
 
     // Partida: "P" + letra A/B (usamos solo el primer char de partida)
     char letra = (st->partida[0] != '\0') ? st->partida[0] : 'A';
     snprintf(buf, sizeof(buf), "P%c", letra);
-    draw_text(r, 140.0f, 8.0f, buf, scale);
+    draw_text(r, 410.0f, 8.0f, buf, scale);
 
     SDL_RenderPresent(r);
 }
