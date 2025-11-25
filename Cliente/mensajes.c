@@ -8,34 +8,46 @@
 #include "mensajes.h"
 
 
-void enviar_muerte(SOCKET sock, DeathReason r) {
+void enviar_muerte(SOCKET sock, DeathReason r, const char* partida) {
     const char* reason_str = "unknown";
-    if (r == DEATH_WATER) reason_str = "water";
-    else if (r == DEATH_CROC) reason_str = "croc";
+    if (r == DEATH_WATER)      reason_str = "water";
+    else if (r == DEATH_CROC)  reason_str = "croc";
+    else if (r == DEATH_MARIO) reason_str = "mario";
 
-    char json[128];
+    char json[256];
     snprintf(json, sizeof json,
-        "{\"type_message\":\"death\",\"reason\":\"%s\"}", reason_str);
+        "{\"type_message\":\"death\",\"reason\":\"%s\",\"partida\":\"%s\"}",
+        reason_str,
+        partida);
 
     net_send_line(sock, json);
 }
 
-void enviar_fruta_d(SOCKET sock, const char* fruit_id) {
+void enviar_fruta_d(SOCKET sock, const char* fruit_id, const char* partida) {
     if (!fruit_id || fruit_id[0] == '\0') {
         return; // nada que mandar
     }
 
     char json[256];
     snprintf(json, sizeof json,
-             "{\"type_message\":\"fruit_destroyed\",\"id\":\"%s\"}",
-             fruit_id);
+             "{\"type_message\":\"fruit_destroyed\",\"id\":\"%s\",\"partida\":\"%s\"}",
+             fruit_id, partida);
 
     net_send_line(sock, json);
     printf(">> Enviando fruit_destroyed id=%s\n", fruit_id);
 }
 
-void enviar_win(SOCKET sock) {
-    const char* json = "{\"type_message\":\"win\"}";
+void enviar_win(SOCKET sock, const char* partida)
+{
+    char json[256];
+    snprintf(json, sizeof json, "{\"type_message\":\"win\",\"partida\":\"%s\"}", partida);
+    net_send_line(sock, json);
+    printf(">> Enviando WIN al servidor\n");
+}
+
+void enviar_salida(SOCKET sock, const char* partida) {
+    char json[256];
+    snprintf(json, sizeof json, "{\"type_message\":\"salir\",\"reason\":\"gameover\",\"partida\":\"%s\"}", partida);
     net_send_line(sock, json);
     printf(">> Enviando WIN al servidor\n");
 }

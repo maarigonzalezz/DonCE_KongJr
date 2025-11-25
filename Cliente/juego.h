@@ -6,6 +6,8 @@
 #include <winsock2.h>
 #include "constants.h"
 
+extern int g_game_over;
+
 // ------------------------------ STRUCTS --------------------
 // para lo que es la ventana de juego y renderizar
 typedef struct {
@@ -157,13 +159,16 @@ void juego_shutdown(Juego* j);
 MenuOpcion juego_menu(Juego* j);
 WhichOpcion juego_menu_which(Juego* j, int tieneA, int tieneB);
 
+void juego_mostrar_game_over(Juego* j, const GameState* st);
+
 // pantalla de juego
+static void draw_text(SDL_Renderer* r, float x, float y, const char* text, float scale);
 void render_scene(Juego* j, const GameState* st, int es_jugador);
+
+// para el jugador:
 void game_loop_jugador(Juego* j, SOCKET sock, GameState* st);
 void actualizar_logica_jugador(GameState* st, float dt);
 void manejar_input_jugador(SDL_Event* ev, GameState* st);
-
-// para el jugador:
 static int buscar_liana_cercana(const GameState* st);
 static void enganchar_a_liana(GameState* st, int idx);
 static void liana_bounds(int idx, float* top, float* bottom);

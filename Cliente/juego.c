@@ -166,6 +166,76 @@ WhichOpcion juego_menu_which(Juego* j, int tieneA, int tieneB) {
     return opcion;
 }
 
+void juego_mostrar_game_over(Juego* j, const GameState* st) {
+    SDL_Renderer* r = (SDL_Renderer*)j->renderer;
+    int running = 1;
+
+    // Botón "VOLVER"
+    SDL_FRect btn_volver = {
+        WINDOW_WIDTH * 0.5f - 90.0f,   // centrado más o menos
+        WINDOW_HEIGHT * 0.5f + 40.0f,  // debajo del texto
+        180.0f,
+        40.0f
+    };
+
+    while (running) {
+        SDL_Event ev;
+        while (SDL_PollEvent(&ev)) {
+            if (ev.type == SDL_EVENT_QUIT) {
+                // Cerrar ventana
+                running = 0;
+            } else if (ev.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
+                float mx = (float)ev.button.x;
+                float my = (float)ev.button.y;
+
+                // ¿Click dentro del botón?
+                if (mx >= btn_volver.x &&
+                    mx <= btn_volver.x + btn_volver.w &&
+                    my >= btn_volver.y &&
+                    my <= btn_volver.y + btn_volver.h) {
+
+                    // Salimos de la pantalla de Game Over
+                    running = 0;
+                }
+            }
+        }
+
+        // Dibujamos el juego "congelado" de fondo
+        render_scene(j, st, 1);
+
+        // Overlay oscuro
+        SDL_SetRenderDrawColor(r, 0, 0, 0, 180);
+        SDL_FRect overlay = { 0, 0, (float)WINDOW_WIDTH, (float)WINDOW_HEIGHT };
+        SDL_RenderFillRect(r, &overlay);
+
+        // Texto GAME OVER
+        SDL_SetRenderDrawColor(r, 255, 0, 0, 255);
+        float cx = WINDOW_WIDTH * 0.5f - 60.0f;
+        float cy = WINDOW_HEIGHT * 0.5f - 30.0f;
+        draw_text(r, cx,     cy,     "GAME", 3.0f);
+        draw_text(r, cx + 5, cy+30,  "OVER", 3.0f);
+
+        // Score final
+        char buf[64];
+        snprintf(buf, sizeof(buf), "S%d", st->score);
+        SDL_SetRenderDrawColor(r, 255, 255, 255, 255);
+        draw_text(r, cx, cy + 80, buf, 2.0f);
+
+        // Dibujar botón "VOLVER"
+        SDL_SetRenderDrawColor(r, 80, 80, 80, 255);
+        SDL_RenderFillRect(r, &btn_volver);
+
+        SDL_SetRenderDrawColor(r, 255, 255, 255, 255);
+        draw_text(r, btn_volver.x + 20.0f,
+                     btn_volver.y + 10.0f,
+                     "VOLVER", 1.5f);
+
+        SDL_RenderPresent(r);
+        SDL_Delay(16);
+    }
+}
+
+
 // ---------------------------- RENDXERIZAR NUMEROS Y LETRAS
 static const Glyph* find_glyph(char c) {
     int n = (int)(sizeof(g_glyphs)/sizeof(g_glyphs[0]));

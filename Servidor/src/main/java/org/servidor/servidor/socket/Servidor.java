@@ -2,12 +2,10 @@ package org.servidor.servidor.socket;
 
 import java.io.*;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.*;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.servidor.servidor.juego.Sala;
 
 public class Servidor {
@@ -101,4 +99,19 @@ public class Servidor {
 
     }
 
+    public void sendMsgtoSala(JsonNode jsonNode, String partida) {
+        for (Sala s : Salas){
+            if (Objects.equals(s.getPartida(), partida)){
+                s.handleClientMessage(jsonNode);
+            }
+        }
+    }
+
+    public void manageLO(JsonNode jsonNode, String partida, UUID clientId) {
+        for (Sala s : Salas){
+            if (Objects.equals(s.getPartida(), partida)){
+                s.coordinarSalida(jsonNode,clientId);
+            }
+        }
+    }
 }

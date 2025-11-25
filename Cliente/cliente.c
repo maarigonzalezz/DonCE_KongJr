@@ -18,6 +18,7 @@ GameState g_state;
 static Renderer* renderer_global = NULL;
 
 static volatile int g_cerrar_por_nospace = 0;
+int g_game_over = 0;
 
 // manejar bien la librería de Winsock
 static int winsock_startup(void) {
@@ -99,7 +100,7 @@ static unsigned __stdcall recv_thread(void* p) {
             break;
         }
 
-        // printf(" Mensaje recibido (%d bytes): %s\n", n, line);
+        printf(" Mensaje recibido (%d bytes): %s\n", n, line);
 
         // 1) Caso especial: reach / NoSpace -> cerrar cliente
         if (strstr(line, "\"type_message\":\"reach\"") &&
@@ -117,9 +118,21 @@ static unsigned __stdcall recv_thread(void* p) {
             printf("Partida asignada!");
         }
 
+        // --- GAME OVER ---
+        if (strstr(line, "\"type_message\":\"game_over\"") != NULL) {
+            printf(" GAME OVER recibido del servidor\n");
+            g_game_over = 1;
+            //  ctx->running = 0;  // si quieres dejar de leer más
+            continue;
+        }
+
         if (strstr(line, "\"type_message\":\"snapshot\"") != NULL) {
             // printf(" Snapshot detectado\n");
             parse_snapshot(&g_state, line);
+        }
+
+        if (strstr(line, "\"type_message\":\"game_over\"") != NULL) {
+            printf(" Juego terminado\n");
         }
 
         fflush(stdout);
@@ -143,7 +156,9 @@ int leer_mensaje_servidor(SOCKET sock, char* buffer, size_t cap) {
 
 static void cerrar_cliente(SOCKET sock, RecvCtx* ctx, uintptr_t th, Juego* juego) {
     // Avisar al servidor que nos vamos (cuando tú decidas)
-    net_send_line(sock, "{\"type_message\":\"salir\"}");
+    char json[256];
+    snprintf(json, sizeof json, "{\"type_message\":\"salir\",\"reason\":\"hhh\",\"partida\":\"%s\"}", g_state.partida);
+    net_send_line(sock, json);
 
     shutdown(sock, SD_SEND);
     ctx->running = 0;
@@ -246,6 +261,7 @@ int main(void){
             // Armar el estado inicial del juego
             // si ya tienes un parseo de start, úsalo aquí:
             parse_start_message(line, &g_state);
+            g_game_over = 0;
 
             // Ya arrancó la partida -> ahora sí hilo receptor
             RecvCtx ctx = { .sock = sock, .running = 1 };
@@ -260,7 +276,9 @@ int main(void){
             game_loop_jugador(&juego, sock, &g_state);
 
             // Cerrar bien la red
-            net_send_line(sock, "{\"type_message\":\"salir\"}");
+            char json[256];
+            snprintf(json, sizeof json, "{\"type_message\":\"salir\",\"reason\":\"jout\",\"partida\":\"%s\"}", g_state.partida);
+            net_send_line(sock, json);
             shutdown(sock, SD_SEND);
             ctx.running = 0;
             shutdown(sock, SD_RECEIVE);
@@ -269,14 +287,16 @@ int main(void){
             closesocket(sock);
             winsock_cleanup();
 
-            programa_corriendo = 0;  // terminó el juego
-            break;
+            //programa_corriendo = 0;  // terminó el juego
+            //break;
+            continue;  // vuelve al inicio del while(programa_corriendo)
         }
 
         // -----------------------------------------------------------------
         //                       CAMINO ESPECTADOR
         // -----------------------------------------------------------------
-        else { // opcion == MENU_OPCION_ESPECTADOR
+        else {
+            // opcion == MENU_OPCION_ESPECTADOR
 
             // Aquí 'line' debería ser el mensaje con las opciones, algo tipo:
             // {"type_message":"options","which":"A, B"}
@@ -349,7 +369,9 @@ int main(void){
             }
 
             // Cerrar bien la red
-            net_send_line(sock, "{\"type_message\":\"salir\"}");
+            char json[256];
+            snprintf(json, sizeof json, "{\"type_message\":\"salir\",\"reason\":\"sout\",\"partida\":\"%s\"}", g_state.partida);
+            net_send_line(sock, json);
             shutdown(sock, SD_SEND);
             ctx.running = 0;
             shutdown(sock, SD_RECEIVE);

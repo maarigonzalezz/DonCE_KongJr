@@ -46,9 +46,8 @@ void game_loop_jugador(Juego* j, SOCKET sock, GameState* st) {
 
         if (st->pending_death != DEATH_NONE)
         {
-            enviar_muerte(sock, st->pending_death);
+            enviar_muerte(sock, st->pending_death, st->partida);
 
-            // --------------------------------- RESPAWN BASICO HASTA QUE SE MANEJEN LOS MENSAJES BIEN------------------------
             // respawn básico mientras tanto:
             st->jr_x = JR_START_X;
             st->jr_y = JR_START_Y;
@@ -62,13 +61,21 @@ void game_loop_jugador(Juego* j, SOCKET sock, GameState* st) {
 
 
         if (st->pending_fruit) {
-            enviar_fruta_d(sock, st->pending_fruit_id);
+            enviar_fruta_d(sock, st->pending_fruit_id, st->partida);
             st->pending_fruit = 0;
             st->pending_fruit_id[0] = '\0';
         }
 
+        if (g_game_over) {
+            // Mostrar pantalla de game over (bloqueante hasta que usuario cierre / clic / tecla)
+            juego_mostrar_game_over(j, st);
+            // Salimos del loop de juego
+            running = 0;
+
+        }
+
         if (st->pending_win) {
-            enviar_win(sock);
+            enviar_win(sock, st->partida);
             // respawn básico mientras tanto:
             st->jr_x = JR_START_X;
             st->jr_y = JR_START_Y;

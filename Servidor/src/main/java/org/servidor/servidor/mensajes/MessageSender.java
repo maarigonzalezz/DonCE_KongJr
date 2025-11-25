@@ -110,11 +110,10 @@ public class MessageSender {
     }
 
     //  anunciar fin de partida
-    public void sendGameOver(org.servidor.servidor.socket.ClienteActivo cliente, int scoreFinal) {
+    public void send_GameOver(ClienteActivo cliente) {
         try {
             var msg = new java.util.HashMap<String, Object>();
             msg.put("type_message", "game_over");
-            msg.put("score", scoreFinal);
             String json = objectMapper.writeValueAsString(msg);
 
             BufferedWriter w = new BufferedWriter(
@@ -127,6 +126,4 @@ public class MessageSender {
             System.err.println("Error enviando GAME_OVER a " + cliente.getClientId() + ": " + e.getMessage());
         }
     }
-
-
 }

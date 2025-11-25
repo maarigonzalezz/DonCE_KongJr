@@ -28,6 +28,8 @@ public abstract class Entity {
         return entityId;
     }
 
+
+
     /** Actualización por tick; las subclases definen su comportamiento. */
     public abstract void update(LianasConfig lianasConfig, float dt);
 }

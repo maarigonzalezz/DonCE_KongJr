@@ -30,4 +30,8 @@ public class ClienteActivo {
     public UUID getClientId() {
         return clientId;
     }
+
+    public String getClient_type() {
+        return client_type;
+    }
 }

@@ -1,8 +1,11 @@
 package org.servidor.servidor.juego.reglas;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.servidor.servidor.juego.LianasConfig;
 import org.servidor.servidor.juego.entidades.*;
 
@@ -46,8 +49,47 @@ public final class GameLoop {
     //
     public void startEntities() {
         entities.add(new Fruta(5, 300, 90f));
-        entities.add(new Fruta(1, 300, 50f));
+        entities.add(new Fruta(1, 100, 50f));
         entities.add(new CocodriloAzul(1, 2f));
+    }
+
+    public void manejarDeath() {
+        gameState.perderVida();
+    }
+
+    public void manejarFruitDestroyed(JsonNode msg) {
+        String id = msg.path("id").asText(null);
+        if (id == null || id.isEmpty()) {
+            System.out.println("Mensaje fruit_destroyed sin id válido");
+            return;
+        }
+
+        // Usar un Iterator para poder eliminar mientras iteramos
+        Iterator<Entity> it = entities.iterator();
+        while (it.hasNext()) {
+            Entity e = it.next();
+
+            // Comparamos el id de la entidad con el id que vino en el mensaje
+            if (Objects.equals(e.getEntityId().toString(), id)) {
+
+                // Verificamos que realmente sea una fruta
+                if (e instanceof Fruta fruta) {
+                    int puntos = fruta.getPuntos();
+                    gameState.updateScore(puntos);  // suma al puntaje oficial
+                    System.out.println("Fruta " + id + " destruida, +" + puntos + " puntos");
+                } else {
+                    System.out.println("Entity con id " + id + " no es una Fruta");
+                }
+
+                // Sacamos la entidad (fruta) de la lista
+                it.remove();
+                break; // ya encontramos la fruta, salimos del while
+            }
+        }
+    }
+
+    public void manejarWin() {
+        gameState.victoryBoost(1.5f);
     }
 
     /** Aplica boost de victoria y reposiciona al jugador.

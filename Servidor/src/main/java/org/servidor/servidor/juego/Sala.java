@@ -1,5 +1,6 @@
 package org.servidor.servidor.juego;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.servidor.servidor.juego.entidades.CocodriloAzul;
 import org.servidor.servidor.juego.entidades.CocodriloRojo;
 import org.servidor.servidor.juego.entidades.Fruta;
@@ -14,6 +15,8 @@ import org.servidor.servidor.juego.entidades.Entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.*;
 
 /**
@@ -156,7 +159,7 @@ public class Sala {
         }
     }
 
-    /** Reinicia sala (sesión y simulación).
+    // Reinicia sala (sesión y simulación).
     public synchronized void reiniciarSala() {
         salaActiva = false;
         clientes.clear();
@@ -164,7 +167,6 @@ public class Sala {
 
         if (exec != null) { exec.shutdownNow(); exec = null; }
         loop = null;
-        level = null;
         entities = null;
 
         if (gameState != null) gameState.reset(); // score=0, vidas=2, speedFactor=1.0, fase=RUNNING
@@ -175,4 +177,99 @@ public class Sala {
 
     /** Exponer GameState (opcional). */
     public GameState getGameState() { return gameState; }
+
+    public synchronized void handleClientMessage( JsonNode msg) {
+        String type = msg.path("type_message").asText("");
+
+        switch (type) {
+            case "death":
+                loop.manejarDeath();
+                verificarVidas();
+                break;
+            case "fruit_destroyed":
+                loop.manejarFruitDestroyed(msg);
+                break;
+            case "win":
+                loop.manejarWin();
+                break;
+            default:
+                System.out.println("Mensaje de juego desconocido: " + type);
+        }
+    }
+
+    private void verificarVidas() {
+        if (gameState.vidas() <= 0) {
+            System.out.println("Partida " + partida + " GAME OVER");
+            for (ClienteActivo c : clientes) {
+                messageSender.send_GameOver(c);
+            }
+            reiniciarSala();
+            // REINICIAR SALA
+        }
+    }
+
+
+    public synchronized void coordinarSalida(JsonNode jsonNode, UUID clientId) {
+        String reason = jsonNode.path("reason").asText(null);
+
+        // 1) Buscar el cliente saliente
+        ClienteActivo saliente = buscarClientePorId(clientId);
+        if (saliente == null) {
+            System.out.println("coordinarSalida: cliente " + clientId + " no encontrado en sala " + partida);
+            return;
+        }
+
+        String tipo = saliente.getClient_type(); // "jugador" o "espectador" (según tu diseño)
+
+        System.out.printf("Salida de cliente %s (tipo=%s, reason=%s) en sala %s%n",
+                clientId, tipo, reason, partida);
+
+        // 2) Branch por tipo
+        if ("jugador".equalsIgnoreCase(tipo)) {
+            manejarSalidaJugador(saliente, reason);
+        } else {
+            manejarSalidaEspectador(saliente);
+        }
+    }
+
+    private ClienteActivo buscarClientePorId(UUID clientId) {
+        for (ClienteActivo c : clientes) {
+            if (Objects.equals(c.getClientId(), clientId)) {
+                return c;
+            }
+        }
+        return null;
+    }
+
+    private void manejarSalidaEspectador(ClienteActivo espectador) {
+        // Quitar de la lista de clientes
+        boolean removed = clientes.remove(espectador);
+        observers.remove(espectador);
+
+        if (removed) {
+            // Decrementar contador de observadores si lo estás usando
+            observadores = Math.max(0, observadores - 1);
+            System.out.println("Espectador " + espectador.getClientId() +
+                    " salió de la sala " + partida + ". Observadores restantes: " + observadores);
+        } else {
+            System.out.println("No se pudo remover espectador, no estaba en la lista: " + espectador.getClientId());
+        }
+    }
+
+    private void manejarSalidaJugador(ClienteActivo jugador, String reason) {
+        // Por si quieres distinguir entre "se desconectó" y "salió voluntariamente"
+        boolean abandonoVoluntario = "jout".equalsIgnoreCase(reason);
+
+        if (abandonoVoluntario) {
+            // 1) Notificar a los observadores que la partida terminó
+            for (ClienteActivo c : clientes){
+                messageSender.send_GameOver(c);
+            }
+
+            // 2) Limpiar la sala (parar loop, vaciar listas, resetear estado)
+            reiniciarSala();
+        }
+    }
+
+
 }

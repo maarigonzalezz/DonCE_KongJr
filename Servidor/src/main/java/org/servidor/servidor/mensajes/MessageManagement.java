@@ -60,13 +60,26 @@ public class MessageManagement {
                     System.out.println("Llegó mensaje: " + messageType);
                     handleSpectatorChoice(jsonNode); // Maneja el registro
                     break;
-
-                // procesar los mensajes de input
-                case "input":
-                    System.out.println("Llegó mensaje input: " + jsonNode);
-                    handleInput(jsonNode);
+                case "fruit_destroyed":
+                    System.out.println("Llegó mensaje de fruta: " + messageType);
+                    handleGameMessage(jsonNode);
                     break;
-                //case LA IDEA ES IR METIENDO CASOS SEGUN LO QUE RECIBAMOS DEL CLIENTE
+                case "death":
+                    System.out.println("Llegó mensaje: " + messageType);
+                    handleGameMessage(jsonNode);
+                    break;
+                case "win":
+                    System.out.println("Llegó mensaje: " + messageType);
+                    handleGameMessage(jsonNode);
+                    break;
+                case "jr_pos":
+                    System.out.println("Llegó mensaje: " + messageType);
+                    handleGameMessage(jsonNode);
+                    break;
+                case "salir": // Si el tipo es "register"
+                    System.out.println("Llegó mensaje: " + messageType);
+                    handleLogout(jsonNode);
+                    break;
                 default: // Si el tipo de mensaje es desconocido
                     System.out.println("Tipo de mensaje desconocido: " + messageType);
             }
@@ -75,6 +88,7 @@ public class MessageManagement {
             System.err.println("Error procesando el mensaje: " + e.getMessage());
         }
     }
+
 
     private void handleRegistration(JsonNode jsonNode) {
         try {
@@ -99,34 +113,18 @@ public class MessageManagement {
         }
     }
 
-    /** enruta inputs del cliente hacia la Sala.
-     *  Espera: {"type_message":"input","action":"climb_up","partida":"A"}
-     *  Se puede guardar la partida desde el cliente
-     */
-    private void handleInput(JsonNode jsonNode) {
-        try {
-            String action  = jsonNode.path("action").asText(null);
-            String partida = jsonNode.path("partida").asText(null);
-            if (action == null) return;
+    private void handleGameMessage(JsonNode jsonNode) {
+        String partida = jsonNode.path("partida").asText(null);
+        server.sendMsgtoSala(jsonNode, partida);
+    }
 
-            // Busca la sala por 'partida'
-            Sala sala = null;
-            if (partida != null) {
-                for (Sala s : Servidor.Salas) {
-                    if (Objects.equals(s.getPartida(), partida)) { sala = s; break; }
-                }
-            }
-
-            if (sala == null) {
-                System.out.println("Input ignorado: sala no encontrada (partida=" + partida + ")");
-                return;
-            }
-
-            // sala.applyInput(action);
-        } catch (Exception e) {
-            System.err.println("Error manejando input: " + e.getMessage());
+    private void handleLogout(JsonNode jsonNode) {
+        String partida = jsonNode.path("partida").asText(null);
+        if (!Objects.equals(partida, "null")){
+            server.manageLO(jsonNode, partida, clientId);
         }
     }
+
 }
 
 
