@@ -77,7 +77,7 @@ public class MessageManagement {
                     handleGameMessage(jsonNode);
                     break;
                 case "salir": // Si el tipo es "register"
-                    System.out.println("Llegó mensaje: " + messageType);
+                    System.out.println("Llegó mensaje: " + jsonNode);
                     handleLogout(jsonNode);
                     break;
                 default: // Si el tipo de mensaje es desconocido

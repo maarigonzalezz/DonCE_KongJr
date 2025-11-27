@@ -188,6 +188,9 @@ public class Sala {
             case "win":
                 loop.manejarWin();
                 break;
+            case "jr_pos":
+                sendJrtoObservers(msg);
+                break;
             default:
                 System.out.println("Mensaje de juego desconocido: " + type);
         }
@@ -274,6 +277,12 @@ public class Sala {
                 return Collections.emptyList();
             }
             return new ArrayList<>(entities);
+        }
+    }
+
+    public void sendJrtoObservers(JsonNode jrmessage){
+        for (ClienteActivo c : observers){
+            messageSender.send_JrPosition(c, jrmessage);
         }
     }
 

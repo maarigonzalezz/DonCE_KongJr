@@ -14,6 +14,7 @@ public final class GameLoop {
     private final GameState gameState;
 
     private final LianasConfig lianasConfig;
+    private static final float DEATH_Y = 610f;
 
     public GameLoop(List<Entity> entidades, GameState state) {
         this.entities = entidades;
@@ -37,8 +38,13 @@ public final class GameLoop {
             // Delegar la lógica de movimiento a cada entidad
             e.update(lianasConfig, dt);
 
-            // Si quieres, aquí podrías chequear:
-            // - azules muy abajo -> porEliminar.add(e);
+            if (e instanceof CocodriloAzul azul) {
+                // Solo nos interesa cuando está cayendo
+                if (azul.getEstado() == CocodriloAzul.Estado.CAYENDO
+                        && azul.getY() > DEATH_Y) {
+                    porEliminar.add(e);
+                }
+            }
         }
 
         if (!porEliminar.isEmpty()) {
@@ -91,14 +97,4 @@ public final class GameLoop {
     public void manejarWin() {
         gameState.victoryBoost(1.5f);
     }
-
-    /** Aplica boost de victoria y reposiciona al jugador.
-    private void applyVictoryReset(DKJr jugador) {
-        // 1) Boost lógico (+10% de dificultad)
-        float factor = 1.10f;
-        gameState.victoryBoost(factor);
-
-        // 2) Aqui se puede multiplicar  baseSpeed*speedFactor
-
-    }*/
 }

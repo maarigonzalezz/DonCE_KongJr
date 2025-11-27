@@ -1,6 +1,7 @@
 package org.servidor.servidor.mensajes;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.servidor.servidor.socket.ClienteActivo;
 
@@ -124,6 +125,19 @@ public class MessageSender {
             w.flush();
         } catch (Exception e) {
             System.err.println("Error enviando GAME_OVER a " + cliente.getClientId() + ": " + e.getMessage());
+        }
+    }
+
+    public void send_JrPosition(ClienteActivo c, JsonNode jrmessage) {
+        try {
+            BufferedWriter w = new BufferedWriter(
+                    new OutputStreamWriter(c.getSocket().getOutputStream(), StandardCharsets.UTF_8)
+            );
+            w.write(String.valueOf(jrmessage));
+            w.write("\n");
+            w.flush();
+        } catch (Exception e) {
+            System.err.println("Error enviando jr_pos a " + c.getClientId() + ": " + e.getMessage());
         }
     }
 }
