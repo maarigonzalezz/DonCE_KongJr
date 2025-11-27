@@ -30,25 +30,31 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 10,
+				"line" : 15,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 8,
+				"line" : 13,
 				"parent" : 0
 			},
 			{
 				"command" : 2,
 				"file" : 0,
-				"line" : 24,
+				"line" : 30,
 				"parent" : 0
 			},
 			{
 				"command" : 3,
 				"file" : 0,
-				"line" : 7,
+				"line" : 9,
+				"parent" : 0
+			},
+			{
+				"command" : 3,
+				"file" : 0,
+				"line" : 10,
 				"parent" : 0
 			}
 		]
@@ -66,7 +72,11 @@
 			[
 				{
 					"backtrace" : 4,
-					"path" : "C:/Users/gonza/Desktop/tarea4 paradigmas/DonCE_KongJr/Cliente/SDL3/x86_64-w64-mingw32/include"
+					"path" : "C:/Users/Aless/OneDrive/Escritorio/DonCE_KongJr/Cliente/SDL3/x86_64-w64-mingw32/include"
+				},
+				{
+					"backtrace" : 5,
+					"path" : "C:/Users/Aless/OneDrive/Escritorio/DonCE_KongJr/Cliente/SDL3/x86_64-w64-mingw32/include/SDL3_image"
 				}
 			],
 			"language" : "C",
@@ -103,12 +113,17 @@
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "-LC:\\Users\\gonza\\Desktop\\TAREA4~1\\DONCE_~1\\Cliente\\SDL3\\X86_64~1\\lib",
+				"fragment" : "-LC:\\Users\\Aless\\OneDrive\\Escritorio\\DonCE_KongJr\\Cliente\\SDL3\\x86_64-w64-mingw32\\lib",
 				"role" : "libraryPath"
 			},
 			{
 				"backtrace" : 3,
 				"fragment" : "-lSDL3",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "C:\\Users\\Aless\\OneDrive\\Escritorio\\DonCE_KongJr\\Cliente\\SDL3\\x86_64-w64-mingw32\\lib\\libSDL3_image.dll.a",
 				"role" : "libraries"
 			},
 			{
