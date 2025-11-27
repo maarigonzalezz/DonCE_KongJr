@@ -101,11 +101,11 @@ public class AppController {
     private String formatEntity(Entity e) {
         // Ajusta según tus clases reales
         if (e instanceof Fruta f) {
-            return "Fruta  | liana=" + f.lianaId() + " | pts=" + f.getPuntos();
+            return "Fruta  | liana=" + (f.lianaId()+1) + " | pts=" + f.getPuntos();
         } else if (e instanceof CocodriloRojo c) {
-            return "Coc. rojo | liana=" + c.lianaId();
+            return "Coc. rojo | liana=" + (c.lianaId()+1);
         } else if (e instanceof CocodriloAzul c) {
-            return "Coc. azul | liana=" + c.lianaId();
+            return "Coc. azul | liana=" + (c.lianaId()+1);
         } else {
             return e.getClass().getSimpleName();
         }

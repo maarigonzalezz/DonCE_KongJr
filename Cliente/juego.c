@@ -562,7 +562,6 @@ void render_scene(Juego* j, const GameState* st, int es_jugador) {
     }
 
 
-
     // --- Lianas ---
     SDL_SetRenderDrawColor(r, 120, 200, 80, 255);
     for (int i = 0; i < NUM_LIANAS; ++i) {

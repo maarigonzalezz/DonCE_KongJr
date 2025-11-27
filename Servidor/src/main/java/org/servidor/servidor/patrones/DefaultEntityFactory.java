@@ -8,14 +8,6 @@ import org.servidor.servidor.juego.entidades.Entity;
 
 public final class DefaultEntityFactory implements EntityFactory {
 
-    // Si necesitas la config de lianas, la puedes recibir por el constructor
-    // pero con tu diseño actual, no es obligatorio
-    // private final LianasConfig lianasConfig;
-    //
-    // public DefaultEntityFactory(LianasConfig cfg) {
-    //     this.lianasConfig = cfg;
-    // }
-
     @Override
     public Entity createEntity(EntityKind kind, int lianaId, float alturaPct, int puntos) {
         return switch (kind) {

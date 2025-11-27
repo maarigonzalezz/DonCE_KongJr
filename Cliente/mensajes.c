@@ -52,6 +52,32 @@ void enviar_salida(SOCKET sock, const char* partida) {
     printf(">> Enviando WIN al servidor\n");
 }
 
+void enviar_jr_pos(SOCKET sock,
+                   float x, float y,
+                   int mode, int facing,
+                   const char* partida)
+{
+    if (!partida) {
+        partida = "";
+    }
+
+    char json[256];
+    snprintf(json, sizeof json,
+        "{\"type_message\":\"jr_pos\","
+          "\"x\":%.2f,"
+          "\"y\":%.2f,"
+          "\"mode\":%d,"
+          "\"facing\":%d,"
+          "\"partida\":\"%s\"}",
+        x, y, mode, facing, partida);
+
+    net_send_line(sock, json);
+
+    // Debug opcional:
+    // printf(">> jr_pos x=%.2f y=%.2f mode=%d facing=%d partida=%s\n",
+    //        x, y, mode, facing, partida);
+}
+
 
 // RECIBIR MENSAJES
 void parse_start_message(const char* line, GameState* state)
@@ -227,3 +253,45 @@ void parse_snapshot(GameState* st, const char* line) {
         // si el siguiente char es ']', salimos del while
     }
 }
+
+void parse_jr_pos(const char* line, GameState* st)
+{
+    const char* p;
+
+    // --- x ---
+    p = strstr(line, "\"x\":");
+    if (p) {
+        float fx;
+        if (sscanf(p + 4, "%f", &fx) == 1) {
+            st->jr_x = fx;
+        }
+    }
+
+    // --- y ---
+    p = strstr(line, "\"y\":");
+    if (p) {
+        float fy;
+        if (sscanf(p + 4, "%f", &fy) == 1) {
+            st->jr_y = fy;
+        }
+    }
+
+    // --- mode ---
+    p = strstr(line, "\"mode\":");
+    if (p) {
+        int m;
+        if (sscanf(p + 7, "%d", &m) == 1) {
+            st->jr_mode = (JrMode)m;  // 0 = suelo, 1 = liana
+        }
+    }
+
+    // --- facing ---
+    p = strstr(line, "\"facing\":");
+    if (p) {
+        int f;
+        if (sscanf(p + 9, "%d", &f) == 1) {
+            st->jr_facing = (JrFacing)f; // 0 = left, 1 = right
+        }
+    }
+}
+

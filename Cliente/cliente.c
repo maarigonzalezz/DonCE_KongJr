@@ -131,8 +131,11 @@ static unsigned __stdcall recv_thread(void* p) {
             parse_snapshot(&g_state, line);
         }
 
-        if (strstr(line, "\"type_message\":\"game_over\"") != NULL) {
-            printf(" Juego terminado\n");
+        if (strstr(line, "\"type_message\":\"jr_pos\"") != NULL) {
+            // Actualiza solo la parte de Jr en el GameState
+            parse_jr_pos(line, &g_state);
+            update_jr_sprite(&g_state);
+            continue;
         }
 
         fflush(stdout);
@@ -381,6 +384,9 @@ int main(void){
                 continue;
             }
 
+            parse_start_message(line, &g_state);
+            g_game_over = 0;
+
             // Ya sabemos qué partida observar -> crear hilo receptor
             RecvCtx ctx = { .sock = sock, .running = 1 };
             uintptr_t th = _beginthreadex(NULL, 0, recv_thread, &ctx, 0, NULL);
@@ -391,19 +397,7 @@ int main(void){
                 continue;
             }
 
-            int running = 1;
-            while (running) {
-                SDL_Event ev;
-                while (SDL_PollEvent(&ev)) {
-                    if (ev.type == SDL_EVENT_QUIT) {
-                        running = 0;
-                        break;
-                    }
-                    // TODO: aquí dibujas la vista de espectador
-                }
-
-                SDL_Delay(16);
-            }
+            game_loop_espectador(&juego, sock, &g_state);
 
             // Cerrar bien la red
             char json[256];

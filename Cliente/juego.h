@@ -114,7 +114,6 @@ typedef struct {
     char  partida[8];
 
     // Entidades
-    // NUEVO: entidades que vienen del servidor
     Fruta     frutas[MAX_FRUTAS];
     int       num_frutas;
 
@@ -169,6 +168,12 @@ static const Glyph g_glyphs[] = {
     { 'P', "111" "101" "111" "100" "100" },
     { 'A', "111" "101" "111" "101" "101" },
     { 'B', "110" "101" "110" "101" "110" },
+    { 'G', "111" "100" "101" "101" "111" },
+    { 'M', "101" "111" "101" "101" "101" },
+    { 'E', "111" "100" "111" "100" "111" },
+    { 'O', "111" "101" "101" "101" "111" },
+    { 'V', "101" "101" "101" "101" "010" },
+    { 'R', "111" "101" "111" "101" "101" },
 };
 
 
@@ -215,5 +220,7 @@ static void enganchar_a_liana(GameState* st, int idx);
 static void liana_bounds(int idx, float* top, float* bottom);
 static void aplicar_colision_plataformas(GameState* st, float old_x, float old_y);
 
+// para el espectador
+void game_loop_espectador(Juego* j, SOCKET sock, GameState* st);
 
 #endif //JUEGO_H

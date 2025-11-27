@@ -26,6 +26,8 @@ void game_loop_jugador(Juego* j, SOCKET sock, GameState* st) {
     int running = 1;
     Uint64 last_ticks = SDL_GetTicks();
 
+    float acum_jrpos = 0.0f;
+
     while (running) {
         SDL_Event ev;
         while (SDL_PollEvent(&ev)) {
@@ -92,6 +94,13 @@ void game_loop_jugador(Juego* j, SOCKET sock, GameState* st) {
             // dejar a Kong libre por 1 segundo
             st->kong_free_timer = 1.0f;
             st->pending_win = 0;
+        }
+
+        // --------- jr_pos cada ~30 fps ---------
+        acum_jrpos += dt;
+        if (acum_jrpos >= (1.0f / 30.0f)) {  // 30 veces por segundo
+            enviar_jr_pos(sock, st->jr_x, st->jr_y, (int)st->jr_mode, (int)st->jr_facing, st->partida);
+            acum_jrpos = 0.0f;
         }
 
         SDL_Delay(16);
@@ -470,5 +479,38 @@ static void aplicar_colision_plataformas(GameState* st, float old_x, float old_y
                 continue;
             }
         }
+    }
+}
+
+void game_loop_espectador(Juego* j, SOCKET sock, GameState* st) {
+    int running = 1;
+
+    while (running) {
+        // 1) Eventos de ventana
+        SDL_Event ev;
+        while (SDL_PollEvent(&ev)) {
+            if (ev.type == SDL_EVENT_QUIT) {
+                running = 0;
+                break;
+            }
+        }
+
+        if (!running) {
+            break;
+        }
+
+        // 2) Dibujar escena según el último snapshot / jr_pos recibido
+        //    es_jugador = 0 por si quieres diferenciar HUD, etc.
+        render_scene(j, st, /*es_jugador=*/0);
+
+        // 3) Si el servidor avisó game_over, mostramos pantalla y luego volvemos al menú
+        if (g_game_over) {
+            juego_mostrar_game_over(j, st);
+            // opcional: limpiar bandera
+            g_game_over = 0;
+            running = 0;
+        }
+
+        SDL_Delay(16);  // ~60 fps de dibujo
     }
 }
