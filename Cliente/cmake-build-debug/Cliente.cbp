@@ -25,6 +25,7 @@
 				<Option compiler="gcc"/>
 				<Compiler>
 					<Add directory="C:/Users/Aless/OneDrive/Escritorio/DonCE_KongJr/Cliente/SDL3/x86_64-w64-mingw32/include"/>
+					<Add directory="C:/Users/Aless/OneDrive/Escritorio/DonCE_KongJr/Cliente/SDL3/x86_64-w64-mingw32/include/SDL3_image"/>
 					<Add directory="C:/Program Files/JetBrains/CLion 2024.1.4/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/include"/>
 					<Add directory="C:/Program Files/JetBrains/CLion 2024.1.4/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/../../../../include"/>
 					<Add directory="C:/Program Files/JetBrains/CLion 2024.1.4/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/include-fixed"/>
@@ -45,6 +46,7 @@
 				<Option compiler="gcc"/>
 				<Compiler>
 					<Add directory="C:/Users/Aless/OneDrive/Escritorio/DonCE_KongJr/Cliente/SDL3/x86_64-w64-mingw32/include"/>
+					<Add directory="C:/Users/Aless/OneDrive/Escritorio/DonCE_KongJr/Cliente/SDL3/x86_64-w64-mingw32/include/SDL3_image"/>
 					<Add directory="C:/Program Files/JetBrains/CLion 2024.1.4/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/include"/>
 					<Add directory="C:/Program Files/JetBrains/CLion 2024.1.4/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/../../../../include"/>
 					<Add directory="C:/Program Files/JetBrains/CLion 2024.1.4/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/include-fixed"/>
@@ -91,6 +93,15 @@
 			<Option target="Cliente"/>
 		</Unit>
 		<Unit filename="C:/Users/Aless/OneDrive/Escritorio/DonCE_KongJr/Cliente/juego.h">
+			<Option target="Cliente"/>
+		</Unit>
+		<Unit filename="C:/Users/Aless/OneDrive/Escritorio/DonCE_KongJr/Cliente/jugador.c">
+			<Option target="Cliente"/>
+		</Unit>
+		<Unit filename="C:/Users/Aless/OneDrive/Escritorio/DonCE_KongJr/Cliente/mensajes.c">
+			<Option target="Cliente"/>
+		</Unit>
+		<Unit filename="C:/Users/Aless/OneDrive/Escritorio/DonCE_KongJr/Cliente/mensajes.h">
 			<Option target="Cliente"/>
 		</Unit>
 		<Unit filename="C:/Users/Aless/OneDrive/Escritorio/DonCE_KongJr/Cliente/renderer.c">

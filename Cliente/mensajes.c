@@ -193,7 +193,14 @@ void parse_snapshot(GameState* st, const char* line) {
                 f->x = x;
                 f->y = y;
                 f->activa = 1;
+
+                // INICIALIZAR current_sprite
+                f->current_sprite = FRUIT_SPRITE_NORMAL;
+
+               // printf("Nueva fruta: sprite=%d, pos=(%.1f, %.1f)\n",
+                       //f->current_sprite, f->x, f->y);
             }
+
         } else if (strcmp(tipo, "CocodriloAzul") == 0 ||
                    strcmp(tipo, "CocodriloRojo") == 0) {
 
@@ -205,6 +212,8 @@ void parse_snapshot(GameState* st, const char* line) {
                 c->activo = 1;
                 c->tipo = (strcmp(tipo, "CocodriloAzul") == 0)
                           ? CROC_AZUL : CROC_ROJO;
+                // Inicializar sprite
+                update_croc_sprite(c);
             }
         }
 

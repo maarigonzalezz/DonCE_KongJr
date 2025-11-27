@@ -240,7 +240,7 @@ bool renderer_init(Renderer* r, const char* title, int w, int h) {
     //  Construir el nivel
     renderer_build_level(r);
 
-    printf("🎮 Renderer inicializado: %dx%d\n", w, h);
+    printf(" Renderer inicializado: %dx%d\n", w, h);
     return true;
 }
 

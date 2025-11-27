@@ -10,6 +10,8 @@
 
 
 
+
+
 static int rects_intersect(float ax, float ay, float aw, float ah,
                            float bx, float by, float bw, float bh)
 {
@@ -44,6 +46,8 @@ void game_loop_jugador(Juego* j, SOCKET sock, GameState* st) {
         // por ahora solo dibujamos el stage + Jr
         render_scene(j, st, /*es_jugador=*/1);
 
+
+
         if (st->pending_death != DEATH_NONE)
         {
             enviar_muerte(sock, st->pending_death, st->partida);
@@ -57,6 +61,9 @@ void game_loop_jugador(Juego* j, SOCKET sock, GameState* st) {
             st->on_ground = 1;
 
             st->pending_death = DEATH_NONE;
+
+            // Actualizar el sprite
+            update_jr_sprite(st);
         }
 
 
@@ -82,6 +89,8 @@ void game_loop_jugador(Juego* j, SOCKET sock, GameState* st) {
             st->jr_mode = JR_MODE_GROUND;
             st->vine_idx = -1;
             st->on_ground = 1;
+            // dejar a Kong libre por 1 segundo
+            st->kong_free_timer = 1.0f;
             st->pending_win = 0;
         }
 
@@ -102,6 +111,7 @@ void manejar_input_jugador(SDL_Event* ev, GameState* st) {
                 st->jr_mode = JR_MODE_GROUND;
                 st->vine_idx = -1;
                 st->on_ground = 0;     // ahora está en el aire
+                update_jr_sprite(st);
             }
             break;
 
@@ -112,6 +122,7 @@ void manejar_input_jugador(SDL_Event* ev, GameState* st) {
                 st->jr_mode = JR_MODE_GROUND;
                 st->vine_idx = -1;
                 st->on_ground = 0;     // ahora está en el aire
+                update_jr_sprite(st);
             }
             break;
 
@@ -306,6 +317,14 @@ void actualizar_logica_jugador(GameState* st, float dt) {
                             }
     }
 
+    // Reducir tiempo de Kong libre
+    if (st->kong_free_timer > 0.0f) {
+        st->kong_free_timer -= dt;
+        if (st->kong_free_timer < 0.0f)
+            st->kong_free_timer = 0.0f;
+    }
+
+
 
 }
 
@@ -355,6 +374,8 @@ static void enganchar_a_liana(GameState* st, int idx) {
     st->vine_idx = idx;
     st->jr_vx = 0;
     st->jr_vy = 0;
+
+    update_jr_sprite(st);
 
     float x = lianas[idx].x;
     if (st->jr_facing == JR_FACE_LEFT) {

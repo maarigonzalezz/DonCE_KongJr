@@ -2,6 +2,41 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
+
+// para manejar los sprites de mono jr
+typedef enum {
+    JR_SPRITE_FRENTE = 0,
+    JR_SPRITE_LIANA_IZQ,
+    JR_SPRITE_LIANA_DER,
+    JR_NUM_SPRITES
+} JrSpriteState;
+
+//  para manejar los sprites de los lagartos
+typedef enum {
+    CROC_SPRITE_ROJO = 0,
+    CROC_SPRITE_AZUL,
+    CROC_NUM_SPRITES
+} CrocSpriteState;
+
+// sprites de las frutas
+typedef enum {
+    FRUIT_SPRITE_NORMAL = 0,
+    FRUIT_NUM_SPRITES
+} FruitSpriteState;
+// Sprites de Mario
+typedef enum {
+    MARIO_SPRITE_NORMAL = 0,
+    MARIO_NUM_SPRITES
+} MarioSpriteState;
+// Sprites de Kong (mono papá)
+typedef enum {
+    KONG_SPRITE_ENCERRADO = 0,
+    KONG_SPRITE_LIBRE,
+    KONG_NUM_SPRITES
+} KongSpriteState;
+
+
+
 // constantes para conexion cliente servidor
 #define SERVER_HOST "127.0.0.1"
 #define SERVER_PORT "5050"

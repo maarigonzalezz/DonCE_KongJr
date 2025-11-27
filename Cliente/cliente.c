@@ -12,7 +12,7 @@
 #include "renderer.h"
 
 
-GameState g_state;
+GameState g_state = {0};  // Inicializar a cero
 
 //variable global para el renderer
 static Renderer* renderer_global = NULL;
@@ -182,6 +182,43 @@ int main(void){
     }
 
     // Renderer global para snapshots
+    // Cargar sprites de DK Jr
+    printf("Cargando sprites de DK Jr...\n");
+    if (!load_jr_sprites((SDL_Renderer*)juego.renderer, &g_state)) {
+        fprintf(stderr, "Error cargando sprites de DK Jr - usando cuadrados\n");
+    } else {
+        printf("Sprites de DK Jr cargados correctamente\n");
+    }
+
+    // Cargar sprites de cocodrilos
+    printf("Cargando sprites de cocodrilos...\n");
+    if (!load_croc_sprites((SDL_Renderer*)juego.renderer, &g_state)) {
+        fprintf(stderr, "Error cargando sprites de cocodrilos - usando cuadrados\n");
+    } else {
+        printf("Sprites de cocodrilos cargados correctamente\n");
+    }
+    // Cargar sprites de frutas
+    printf("Cargando sprites de frutas...\n");
+    if (!load_fruit_sprites((SDL_Renderer*)juego.renderer, &g_state)) {
+        fprintf(stderr, "Error cargando sprites de frutas - usando cuadrados\n");
+    } else {
+        printf("Sprites de frutas cargados correctamente\n");
+    }
+
+    // Cargar sprite de Mario
+    printf("Cargando sprite de Mario...\n");
+    if (!load_mario_sprites((SDL_Renderer*)juego.renderer, &g_state)) {
+        fprintf(stderr, "Error cargando sprite de Mario - usando cuadrado\n");
+    } else {
+        printf("Sprite de Mario cargado correctamente\n");
+    }
+    printf("Cargando sprites de Kong...\n");
+    if (!load_kong_sprites((SDL_Renderer*)juego.renderer, &g_state)) {
+        fprintf(stderr, "Error cargando sprites de Kong - se mostrará solo la jaula\n");
+    }
+
+
+
     renderer_global = juego.renderer;
     printf(" Renderer global configurado: %p\n", (void*)renderer_global);
 
@@ -385,8 +422,15 @@ int main(void){
         }
     }
 
-    juego_shutdown(&juego);
-    return 0;
-}
+        juego_shutdown(&juego);
+
+        // Liberar sprites aquí
+        free_jr_sprites(&g_state);
+        free_croc_sprites(&g_state);
+        free_fruit_sprites(&g_state);
+
+        return 0;
+    }
+
 
 

@@ -2,6 +2,7 @@
 #define JUEGO_H
 
 #include <SDL3/SDL.h>
+#include <SDL3_image//SDL_image.h>
 #include <stdbool.h>
 #include <winsock2.h>
 #include "constants.h"
@@ -20,6 +21,8 @@ typedef enum {
     MENU_OPCION_NINGUNA = 0,
     MENU_OPCION_JUGADOR = 1,
     MENU_OPCION_ESPECTADOR = 2
+
+
 } MenuOpcion;
 
 // Opciones del espectador
@@ -72,9 +75,10 @@ extern const Platform platforms[NUM_PLATFORMS];
 extern const Liana    lianas[NUM_LIANAS];
 
 typedef struct {
-    char  id[64];   // UUID como string
+    char  id[64];
     float x, y;
-    int   activa;   // 1 si existe, 0 si no
+    FruitSpriteState current_sprite;  //
+    int   activa;
 } Fruta;
 
 typedef enum {
@@ -86,6 +90,7 @@ typedef struct {
     char  id[64];
     float x, y;
     CrocTipo tipo;
+    CrocSpriteState current_sprite;
     int   activo;
 } Cocodrilo;
 
@@ -121,6 +126,21 @@ typedef struct {
     char last_fruit_destroyed_id[64];
 
     int  pending_win;
+    float kong_free_timer;  // segundos que Kong debe seguir libre
+
+
+    // Sprites de DK Jr
+    SDL_Texture* jr_sprites[JR_NUM_SPRITES];
+    JrSpriteState current_sprite;
+    // Sprites de cocodrilos
+    SDL_Texture* croc_sprites[CROC_NUM_SPRITES];
+    // Sprites de frutas
+    SDL_Texture* fruit_sprites[FRUIT_NUM_SPRITES];
+    // Sprites de Mario
+    SDL_Texture* mario_sprites[MARIO_NUM_SPRITES];
+    // Sprites de Kong
+    SDL_Texture* kong_sprites[KONG_NUM_SPRITES];
+
 } GameState;
 
 // ----------------- MINI FUENTE PARA HUD -----------------
@@ -155,6 +175,27 @@ static const Glyph g_glyphs[] = {
 // ----------------------------- FUNCIONES Y DEMAS --------------------------------
 bool juego_init(Juego* j, const char* title, int w, int h);
 void juego_shutdown(Juego* j);
+bool load_jr_sprites(SDL_Renderer* renderer, GameState* st);
+//  Funciones de cocodrilos
+bool load_croc_sprites(SDL_Renderer* renderer, GameState* st);
+void update_croc_sprite(Cocodrilo* croc);
+void free_croc_sprites(GameState* st);
+SDL_Texture* load_texture(SDL_Renderer* renderer, const char* filename);
+//Funciones de jr
+void update_jr_sprite(GameState* st);
+void free_jr_sprites(GameState* st);
+// Funciones de frutas
+bool load_fruit_sprites(SDL_Renderer* renderer, GameState* st);
+void update_fruit_sprite(Fruta* fruit);
+void free_fruit_sprites(GameState* st);
+// Funciones de Mario
+bool load_mario_sprites(SDL_Renderer* renderer, GameState* st);
+void free_mario_sprites(GameState* st);
+// Funciones de Kong
+bool load_kong_sprites(SDL_Renderer* renderer, GameState* st);
+void free_kong_sprites(GameState* st);
+
+
 
 MenuOpcion juego_menu(Juego* j);
 WhichOpcion juego_menu_which(Juego* j, int tieneA, int tieneB);

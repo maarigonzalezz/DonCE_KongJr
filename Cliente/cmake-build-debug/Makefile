@@ -176,6 +176,54 @@ juego.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Cliente.dir\build.make CMakeFiles/Cliente.dir/juego.c.s
 .PHONY : juego.c.s
 
+jugador.obj: jugador.c.obj
+.PHONY : jugador.obj
+
+# target to build an object file
+jugador.c.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Cliente.dir\build.make CMakeFiles/Cliente.dir/jugador.c.obj
+.PHONY : jugador.c.obj
+
+jugador.i: jugador.c.i
+.PHONY : jugador.i
+
+# target to preprocess a source file
+jugador.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Cliente.dir\build.make CMakeFiles/Cliente.dir/jugador.c.i
+.PHONY : jugador.c.i
+
+jugador.s: jugador.c.s
+.PHONY : jugador.s
+
+# target to generate assembly for a file
+jugador.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Cliente.dir\build.make CMakeFiles/Cliente.dir/jugador.c.s
+.PHONY : jugador.c.s
+
+mensajes.obj: mensajes.c.obj
+.PHONY : mensajes.obj
+
+# target to build an object file
+mensajes.c.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Cliente.dir\build.make CMakeFiles/Cliente.dir/mensajes.c.obj
+.PHONY : mensajes.c.obj
+
+mensajes.i: mensajes.c.i
+.PHONY : mensajes.i
+
+# target to preprocess a source file
+mensajes.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Cliente.dir\build.make CMakeFiles/Cliente.dir/mensajes.c.i
+.PHONY : mensajes.c.i
+
+mensajes.s: mensajes.c.s
+.PHONY : mensajes.s
+
+# target to generate assembly for a file
+mensajes.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Cliente.dir\build.make CMakeFiles/Cliente.dir/mensajes.c.s
+.PHONY : mensajes.c.s
+
 renderer.obj: renderer.c.obj
 .PHONY : renderer.obj
 
@@ -215,6 +263,12 @@ help:
 	@echo ... juego.obj
 	@echo ... juego.i
 	@echo ... juego.s
+	@echo ... jugador.obj
+	@echo ... jugador.i
+	@echo ... jugador.s
+	@echo ... mensajes.obj
+	@echo ... mensajes.i
+	@echo ... mensajes.s
 	@echo ... renderer.obj
 	@echo ... renderer.i
 	@echo ... renderer.s
