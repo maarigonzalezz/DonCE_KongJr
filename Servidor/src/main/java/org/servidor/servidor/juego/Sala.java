@@ -187,6 +187,7 @@ public class Sala {
                 break;
             case "win":
                 loop.manejarWin();
+                sendJrtoObservers(msg);
                 break;
             case "jr_pos":
                 sendJrtoObservers(msg);

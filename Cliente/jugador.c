@@ -9,9 +9,6 @@
 #include "mensajes.h"
 
 
-
-
-
 static int rects_intersect(float ax, float ay, float aw, float ah,
                            float bx, float by, float bw, float bh)
 {
@@ -332,9 +329,6 @@ void actualizar_logica_jugador(GameState* st, float dt) {
         if (st->kong_free_timer < 0.0f)
             st->kong_free_timer = 0.0f;
     }
-
-
-
 }
 
 
@@ -425,7 +419,7 @@ static void aplicar_colision_plataformas(GameState* st, float old_x, float old_y
         float plat_top    = p->y;
         float plat_bottom = p->y + p->h;
 
-        // ¿Hay traslape vertical y horizontal en la posición nueva?
+        // Verificar traslape
         int overlap_x = (jr_right_new > plat_left && jr_left_new < plat_right);
         int overlap_y = (jr_bottom_new > plat_top && jr_top_new < plat_bottom);
 
@@ -485,6 +479,9 @@ static void aplicar_colision_plataformas(GameState* st, float old_x, float old_y
 void game_loop_espectador(Juego* j, SOCKET sock, GameState* st) {
     int running = 1;
 
+    // Para calcular dt
+    Uint64 last_ticks = SDL_GetTicks();
+
     while (running) {
         // 1) Eventos de ventana
         SDL_Event ev;
@@ -499,18 +496,28 @@ void game_loop_espectador(Juego* j, SOCKET sock, GameState* st) {
             break;
         }
 
-        // 2) Dibujar escena según el último snapshot / jr_pos recibido
-        //    es_jugador = 0 por si quieres diferenciar HUD, etc.
+        // 2) Calcular dt (delta time en segundos)
+        Uint64 now = SDL_GetTicks();
+        float dt = (now - last_ticks) / 1000.0f;
+        last_ticks = now;
+
+        // 3) Actualizar timer de Kong libre
+        if (st->kong_free_timer > 0.0f) {
+            st->kong_free_timer -= dt;
+            if (st->kong_free_timer < 0.0f)
+                st->kong_free_timer = 0.0f;
+        }
+
+        // 4) Dibujar escena según el último snapshot / jr_pos recibido
         render_scene(j, st, /*es_jugador=*/0);
 
-        // 3) Si el servidor avisó game_over, mostramos pantalla y luego volvemos al menú
+        // 5) Si el servidor avisó game_over, mostramos pantalla y luego volvemos al menú
         if (g_game_over) {
             juego_mostrar_game_over(j, st);
-            // opcional: limpiar bandera
             g_game_over = 0;
             running = 0;
         }
 
-        SDL_Delay(16);  // ~60 fps de dibujo
+        SDL_Delay(16);  // ~60 fps de dibujo aprox
     }
 }

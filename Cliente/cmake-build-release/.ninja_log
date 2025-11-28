@@ -1,0 +1,6 @@
+# ninja log v6
+3	1017	7860132901598965	CMakeFiles/Cliente.dir/cliente.c.obj	dbaa2ee4a0c81109
+15	1020	7860132901722951	CMakeFiles/Cliente.dir/mensajes.c.obj	355e0185ae51077c
+19	1088	7860132901762953	CMakeFiles/Cliente.dir/jugador.c.obj	726fe1e1130b5e1d
+7	1206	7860132901640308	CMakeFiles/Cliente.dir/juego.c.obj	8db15a86f3e616bb
+1207	1497	7860132913634068	Cliente.exe	cf2f4167da92ce06

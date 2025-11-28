@@ -73,7 +73,7 @@ public class MessageManagement {
                     handleGameMessage(jsonNode);
                     break;
                 case "jr_pos":
-                    System.out.println("Llegó mensaje: " + messageType);
+                    //System.out.println("Llegó mensaje: " + messageType);
                     handleGameMessage(jsonNode);
                     break;
                 case "salir": // Si el tipo es "register"

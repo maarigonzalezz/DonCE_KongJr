@@ -73,9 +73,6 @@ void enviar_jr_pos(SOCKET sock,
 
     net_send_line(sock, json);
 
-    // Debug opcional:
-    // printf(">> jr_pos x=%.2f y=%.2f mode=%d facing=%d partida=%s\n",
-    //        x, y, mode, facing, partida);
 }
 
 

@@ -49,12 +49,12 @@ typedef enum {
 
 // botones del menú (posición y tamaño)
 #define BTN1_X 300.0f
-#define BTN1_Y 220.0f
+#define BTN1_Y 320.0f
 #define BTN1_W 300.0f
 #define BTN1_H 60.0f
 
 #define BTN2_X 300.0f
-#define BTN2_Y 320.0f
+#define BTN2_Y 420.0f
 #define BTN2_W 300.0f
 #define BTN2_H 60.0f
 

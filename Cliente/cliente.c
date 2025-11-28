@@ -137,6 +137,11 @@ static unsigned __stdcall recv_thread(void* p) {
             update_jr_sprite(&g_state);
             continue;
         }
+        if (strstr(line, "\"type_message\":\"win\"") != NULL) {
+            // Actualiza solo la parte de Jr en el GameState
+            g_state.kong_free_timer = 1.0f;
+            continue;
+        }
 
         fflush(stdout);
     }
@@ -183,6 +188,7 @@ int main(void){
         fprintf(stderr, "No se pudo iniciar el juego\n");
         return 1;
     }
+    juego_cargar_fondos_menu(&juego);
 
     // Renderer global para snapshots
     // Cargar sprites de DK Jr
@@ -356,8 +362,8 @@ int main(void){
                 // Usuario cerró la ventana en el menú de salas
                 closesocket(sock);
                 winsock_cleanup();
-                programa_corriendo = 0;
-                break;
+                //programa_corriendo = 0;
+                continue;
             }
 
             const char* choice = (w == WHICH_A) ? "A" : "B";
@@ -411,8 +417,8 @@ int main(void){
             closesocket(sock);
             winsock_cleanup();
 
-            programa_corriendo = 0;  // terminó la sesión de espectador
-            break;
+            //programa_corriendo = 0;  // terminó la sesión de espectador
+            continue;
         }
     }
 

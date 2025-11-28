@@ -9,6 +9,9 @@
 // Helpers simples para botón
 static SDL_FRect btn1 = { BTN1_X, BTN1_Y, BTN1_W, BTN1_H };
 static SDL_FRect btn2 = { BTN2_X, BTN2_Y, BTN2_W, BTN2_H };
+// Texturas de fondo de menús
+static SDL_Texture* g_menu_bg_tex   = NULL;  // Menu.png
+static SDL_Texture* g_which_bg_tex  = NULL;  // opciones.png
 
 // Array de lianas que son FIJAS a lo que nos piden en el juego clasico
 const Liana lianas[NUM_LIANAS] = {
@@ -277,6 +280,15 @@ bool juego_init(Juego* j, const char* title, int w, int h){
 }
 
 void juego_shutdown(Juego* j){
+    if (g_menu_bg_tex) {
+        SDL_DestroyTexture(g_menu_bg_tex);
+        g_menu_bg_tex = NULL;
+    }
+    if (g_which_bg_tex) {
+        SDL_DestroyTexture(g_which_bg_tex);
+        g_which_bg_tex = NULL;
+    }
+
     if (j->renderer) SDL_DestroyRenderer((SDL_Renderer*)j->renderer);
     if (j->window)   SDL_DestroyWindow((SDL_Window*)j->window);
     SDL_Quit();
@@ -284,18 +296,52 @@ void juego_shutdown(Juego* j){
 
 // ==================== FUNCIONES DE MENÚ ====================
 
-static void draw_menu(Juego* j){
-    SDL_SetRenderDrawColor((SDL_Renderer*)j->renderer, 20, 24, 28, 255);
-    SDL_RenderClear((SDL_Renderer*)j->renderer);
+bool juego_cargar_fondos_menu(Juego* j) {
+    SDL_Renderer* r = (SDL_Renderer*)j->renderer;
 
-    SDL_SetRenderDrawColor((SDL_Renderer*)j->renderer, 100, 180, 100, 255);
-    SDL_RenderFillRect((SDL_Renderer*)j->renderer, &btn1);
+    // Cargar Menu.png
+    g_menu_bg_tex = IMG_LoadTexture(r, "sprites/Menu.png");
+    if (!g_menu_bg_tex) {
+        fprintf(stderr, "Error cargando Menu.png: %s\n", SDL_GetError());
+        // no hacemos return false para permitir seguir sin fondo
+    }
 
-    SDL_SetRenderDrawColor((SDL_Renderer*)j->renderer, 100, 140, 200, 255);
-    SDL_RenderFillRect((SDL_Renderer*)j->renderer, &btn2);
+    // Cargar opciones.png
+    g_which_bg_tex = IMG_LoadTexture(r, "sprites/opcionesmenu.png");
+    if (!g_which_bg_tex) {
+        fprintf(stderr, "Error cargando opciones.png: %s\n", SDL_GetError());
+    }
 
-    SDL_RenderPresent((SDL_Renderer*)j->renderer);
+    return true;
 }
+
+static void draw_menu(Juego* j){
+    SDL_Renderer* r = (SDL_Renderer*)j->renderer;
+
+    // Limpiar pantalla
+    SDL_SetRenderDrawColor(r, 0, 0, 0, 255);
+    SDL_RenderClear(r);
+
+    // --- Fondo con imagen ---
+    if (g_menu_bg_tex) {
+        SDL_FRect dst = { 0, 0, (float)WINDOW_WIDTH, (float)WINDOW_HEIGHT };
+        SDL_RenderTexture(r, g_menu_bg_tex, NULL, &dst);
+    } else {
+        // fallback a color sólido si no cargó la imagen
+        SDL_SetRenderDrawColor(r, 20, 24, 28, 255);
+        SDL_RenderClear(r);
+    }
+
+    // --- Botones encima del fondo ---
+    SDL_SetRenderDrawColor(r, 100, 180, 100, 255);
+    SDL_RenderFillRect(r, &btn1);
+
+    SDL_SetRenderDrawColor(r, 100, 140, 200, 255);
+    SDL_RenderFillRect(r, &btn2);
+
+    SDL_RenderPresent(r);
+}
+
 
 static int hit(SDL_FRect r, float x, float y){
     return (x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h);
@@ -336,9 +382,21 @@ static SDL_FRect btnB_rect = { WHICH_BTN_B_X, WHICH_BTN_B_Y, WHICH_BTN_B_W, WHIC
 static void draw_menu_which(Juego* j, int tieneA, int tieneB) {
     SDL_Renderer* r = (SDL_Renderer*)j->renderer;
 
-    SDL_SetRenderDrawColor(r, 20, 24, 28, 255);
+    // Limpiar pantalla
+    SDL_SetRenderDrawColor(r, 0, 0, 0, 255);
     SDL_RenderClear(r);
 
+    // --- Fondo con imagen ---
+    if (g_which_bg_tex) {
+        SDL_FRect dst = { 0, 0, (float)WINDOW_WIDTH, (float)WINDOW_HEIGHT };
+        SDL_RenderTexture(r, g_which_bg_tex, NULL, &dst);
+    } else {
+        // fallback si no cargó la imagen
+        SDL_SetRenderDrawColor(r, 20, 24, 28, 255);
+        SDL_RenderClear(r);
+    }
+
+    // --- Botones de sala A / B ---
     if (tieneA) {
         SDL_SetRenderDrawColor(r, 180, 180, 80, 255);
         SDL_RenderFillRect(r, &btnA_rect);
@@ -351,6 +409,7 @@ static void draw_menu_which(Juego* j, int tieneA, int tieneB) {
 
     SDL_RenderPresent(r);
 }
+
 
 WhichOpcion juego_menu_which(Juego* j, int tieneA, int tieneB) {
     int running = 1;

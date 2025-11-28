@@ -1,21 +1,7 @@
 # ninja log v6
-31	1067	7859686675676095	CMakeFiles/Cliente.dir/juego.c.obj	36c105bf2b8e5c34
-60	933	7859689145462217	CMakeFiles/Cliente.dir/cliente.c.obj	c18eb2f237f7dcbb
-257	459	7859689612245866	Cliente.exe	5234aad564bd98ea
-47	1072	7859686675836096	CMakeFiles/Cliente.dir/jugador.c.obj	5ec9fbf98e48868
+6	906	7860114886954177	CMakeFiles/Cliente.dir/juego.c.obj	36c105bf2b8e5c34
+5	893	7860126133079832	CMakeFiles/Cliente.dir/cliente.c.obj	c18eb2f237f7dcbb
+893	1148	7860126141958236	Cliente.exe	f7c60a11c776b3dd
+24	1037	7860108200289851	CMakeFiles/Cliente.dir/jugador.c.obj	5ec9fbf98e48868
 100	256	7859689610685726	CMakeFiles/Cliente.dir/renderer.c.obj	477291ab7ac5086a
-43	1027	7859686675796108	CMakeFiles/Cliente.dir/mensajes.c.obj	9d1e043dd947dfe2
-53	1081	7859752529050973	CMakeFiles/Cliente.dir/mensajes.c.obj	9d1e043dd947dfe2
-44	1092	7859752528951050	CMakeFiles/Cliente.dir/cliente.c.obj	c18eb2f237f7dcbb
-63	1098	7859752529141349	CMakeFiles/Cliente.dir/jugador.c.obj	5ec9fbf98e48868
-48	1150	7859752529000898	CMakeFiles/Cliente.dir/juego.c.obj	36c105bf2b8e5c34
-1150	1458	7859752540016223	Cliente.exe	f7c60a11c776b3dd
-5	928	7859822239178797	CMakeFiles/Cliente.dir/cliente.c.obj	c18eb2f237f7dcbb
-14	953	7859822239268943	CMakeFiles/Cliente.dir/jugador.c.obj	5ec9fbf98e48868
-9	973	7859822239218791	CMakeFiles/Cliente.dir/juego.c.obj	36c105bf2b8e5c34
-974	1197	7859822248855983	Cliente.exe	f7c60a11c776b3dd
-16	971	7859832364721450	CMakeFiles/Cliente.dir/mensajes.c.obj	9d1e043dd947dfe2
-5	976	7859832364637113	CMakeFiles/Cliente.dir/cliente.c.obj	c18eb2f237f7dcbb
-19	995	7859832364751542	CMakeFiles/Cliente.dir/jugador.c.obj	5ec9fbf98e48868
-13	998	7859832364687265	CMakeFiles/Cliente.dir/juego.c.obj	36c105bf2b8e5c34
-998	1214	7859832374545133	Cliente.exe	f7c60a11c776b3dd
+20	1028	7860108200249860	CMakeFiles/Cliente.dir/mensajes.c.obj	9d1e043dd947dfe2

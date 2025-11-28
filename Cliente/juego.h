@@ -201,10 +201,10 @@ bool load_kong_sprites(SDL_Renderer* renderer, GameState* st);
 void free_kong_sprites(GameState* st);
 
 
-
+// para dibujar menus
 MenuOpcion juego_menu(Juego* j);
 WhichOpcion juego_menu_which(Juego* j, int tieneA, int tieneB);
-
+bool juego_cargar_fondos_menu(Juego* j);
 void juego_mostrar_game_over(Juego* j, const GameState* st);
 
 // pantalla de juego
