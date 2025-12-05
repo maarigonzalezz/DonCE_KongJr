@@ -616,8 +616,6 @@ void render_scene(Juego* j, const GameState* st, int es_jugador) {
     if (kong_tex) {
         SDL_RenderTexture(r, kong_tex, NULL, &kong_rect);
     } else {
-        // Si algo falla, dejamos solo la jaula roja (ya dibujada)
-
     }
 
 
@@ -646,9 +644,6 @@ void render_scene(Juego* j, const GameState* st, int es_jugador) {
     for (int i = 0; i < st->num_frutas; ++i) {
         if (!st->frutas[i].activa) continue;
 
-      //  printf("Fruta %d: sprite_idx=%d, pos=(%.1f, %.1f)\n",
-              // i, st->frutas[i].current_sprite, st->frutas[i].x, st->frutas[i].y);
-
         // DETERMINAR qué sprite usar
         FruitSpriteState sprite_a_usar = FRUIT_SPRITE_NORMAL;
 
@@ -663,11 +658,8 @@ void render_scene(Juego* j, const GameState* st, int es_jugador) {
       //  printf("  Textura a usar: %p (índice %d)\n", fruit_texture, sprite_a_usar);
 
         if (fruit_texture) {
-           // printf("  ✓ Renderizando fruta con textura\n");
             SDL_RenderTexture(r, fruit_texture, NULL, &fr);
         } else {
-           // printf("  ✗ Textura NULA, usando cuadrado amarillo\n");
-            // Fallback
             SDL_SetRenderDrawColor(r, 255, 215, 0, 255);
             SDL_RenderFillRect(r, &fr);
         }
@@ -688,7 +680,6 @@ void render_scene(Juego* j, const GameState* st, int es_jugador) {
 
     // --- Dibujar cocodrilos ---
 
-    //printf("Cocodrilos activos: %d\n", st->num_cocodrilos);
 
     for (int i = 0; i < st->num_cocodrilos; ++i) {
         if (!st->cocodrilos[i].activo) continue;
@@ -714,10 +705,8 @@ void render_scene(Juego* j, const GameState* st, int es_jugador) {
 
 
         if (croc_texture) {
-           // printf("  ✓ Renderizando con textura\n");
             SDL_RenderTexture(r, croc_texture, NULL, &cr);
         } else {
-            printf("  ✗ Textura NULA, usando cuadrado de color\n");
             // Fallback
             if (st->cocodrilos[i].tipo == CROC_AZUL) {
                 SDL_SetRenderDrawColor(r, 0, 0, 255, 255);

@@ -51,7 +51,6 @@ void game_loop_jugador(Juego* j, SOCKET sock, GameState* st) {
         {
             enviar_muerte(sock, st->pending_death, st->partida);
 
-            // respawn básico mientras tanto:
             st->jr_x = JR_START_X;
             st->jr_y = JR_START_Y;
             st->jr_vx = st->jr_vy = 0;
@@ -397,7 +396,6 @@ static void enganchar_a_liana(GameState* st, int idx) {
         st->jr_y = l_bottom - JR_HEIGHT;
 }
 
-// Ajusta jr_y / jr_vy / on_ground si aterriza sobre una plataforma.
 static void aplicar_colision_plataformas(GameState* st, float old_x, float old_y) {
     st->on_ground = 0;  // asumimos aire; si aterriza, la ponemos en 1
 

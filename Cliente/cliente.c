@@ -122,7 +122,6 @@ static unsigned __stdcall recv_thread(void* p) {
         if (strstr(line, "\"type_message\":\"game_over\"") != NULL) {
             printf(" GAME OVER recibido del servidor\n");
             g_game_over = 1;
-            //  ctx->running = 0;  // si quieres dejar de leer más
             continue;
         }
 
@@ -153,7 +152,6 @@ static unsigned __stdcall recv_thread(void* p) {
 int leer_mensaje_servidor(SOCKET sock, char* buffer, size_t cap) {
     int n = recv_line(sock, buffer, (int)cap);
     if (n <= 0) {
-        // No imprimo error fuerte aquí porque quien llame decide qué hacer
         return n;
     }
 
@@ -163,7 +161,6 @@ int leer_mensaje_servidor(SOCKET sock, char* buffer, size_t cap) {
 }
 
 static void cerrar_cliente(SOCKET sock, RecvCtx* ctx, uintptr_t th, Juego* juego) {
-    // Avisar al servidor que nos vamos (cuando tú decidas)
     char json[256];
     snprintf(json, sizeof json, "{\"type_message\":\"salir\",\"reason\":\"hhh\",\"partida\":\"%s\"}", g_state.partida);
     net_send_line(sock, json);
@@ -305,7 +302,6 @@ int main(void){
             }
 
             // Armar el estado inicial del juego
-            // si ya tienes un parseo de start, úsalo aquí:
             parse_start_message(line, &g_state);
             g_game_over = 0;
 
@@ -333,19 +329,12 @@ int main(void){
             closesocket(sock);
             winsock_cleanup();
 
-            //programa_corriendo = 0;  // terminó el juego
-            //break;
-            continue;  // vuelve al inicio del while(programa_corriendo)
         }
 
         // -----------------------------------------------------------------
         //                       CAMINO ESPECTADOR
         // -----------------------------------------------------------------
         else {
-            // opcion == MENU_OPCION_ESPECTADOR
-
-            // Aquí 'line' debería ser el mensaje con las opciones, algo tipo:
-            // {"type_message":"options","which":"A, B"}
 
             int tieneA = 0;
             int tieneB = 0;
@@ -368,8 +357,6 @@ int main(void){
 
             const char* choice = (w == WHICH_A) ? "A" : "B";
 
-            // Mensaje que tú dijiste:
-            // {"type_message":"schoice","type":"%s"}
             char msg_schoice[128];
             snprintf(msg_schoice, sizeof msg_schoice,
                      "{\"type_message\":\"schoice\",\"type\":\"%s\"}", choice);
