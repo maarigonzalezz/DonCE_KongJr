@@ -35,7 +35,6 @@ public class Servidor {
                     pool.execute(new ManejoCliente(s, this));
                 } catch (IOException e) {
                     if (running) System.err.println("Error aceptando conexión: " + e.getMessage());
-                    // si no está running, es porque estamos apagando: salir del loop
                 }
             }
         } catch (IOException e) {
@@ -134,7 +133,7 @@ public class Servidor {
     }
 
     public void crearEntidadAdmin(String salaId, String tipoStr, int lianaId, float alturaPct, int puntos) {
-        Sala sala = getSala(salaId); // ya tenías algo así
+        Sala sala = getSala(salaId);
         if (sala == null) {
             System.out.println("No se encontró sala " + salaId);
             return;

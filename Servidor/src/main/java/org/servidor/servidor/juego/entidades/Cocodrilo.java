@@ -7,10 +7,6 @@ import org.servidor.servidor.juego.LianasConfig;
  * - lianaId: índice de liana a la que está “anclado” (x se alinea al eje de la liana).
  * - speed: velocidad vertical base (px/s). La estrategia decide cómo aplicarla.
  * - estrategia: comportamiento (Rojo/Azul).
- *
- * Notas:
- * - Incluye defensivos si el lianaId está fuera de rango.
- * - Provee getters/setters de speed para ajustar la velocidad
  */
 
 

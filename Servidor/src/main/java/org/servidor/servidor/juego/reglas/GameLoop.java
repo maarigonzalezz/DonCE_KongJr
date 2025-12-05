@@ -25,8 +25,7 @@ public final class GameLoop {
     public void tick(float dt) {
         float speedFactor = gameState.speedFactor();
 
-        // Si algún día quieres eliminar azules que se caen,
-        // puedes ir marcándolos aquí y borrarlos luego
+
         List<Entity> porEliminar = new ArrayList<>();
 
         for (Entity e : entities) {

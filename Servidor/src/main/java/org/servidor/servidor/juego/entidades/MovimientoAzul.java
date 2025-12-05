@@ -77,11 +77,5 @@ public final class MovimientoAzul implements MovementStrategy {
         azul.setVy(vy);
         azul.setY(ny);
 
-        // Aquí podrías marcarlo para eliminar si cae demasiado
-        // (el borrado real lo hace el GameLoop):
-        //
-        // if (ny > algunLimite) {
-        //     azul.setMuerto(true);
-        // }
     }
 }
